@@ -1,1 +1,1 @@
-export const apiGatewayPrefix = process.env.REACT_APP_API_URL;
+export const apiGatewayPrefix = 'https://projetofam-backend.herokuapp.com/api';
