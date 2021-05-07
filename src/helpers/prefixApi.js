@@ -1,3 +1,1 @@
-export const apiGatewayPrefix = 'http://localhost:3000/api';
-
-
+export const apiGatewayPrefix = process.env.REACT_APP_API_URL;

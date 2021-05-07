@@ -12,6 +12,7 @@
     "bootstrap": "^4.6.0",
     "date-fns": "^2.21.1",
     "date-fns-tz": "^1.1.4",
+    "dotenv": "^9.0.0",
     "moment": "^2.29.1",
     "node-sass": "^5.0.0",
     "primereact": "^6.3.1",
