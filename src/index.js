@@ -4,13 +4,13 @@ import App from './app'
 import {Provider} from 'react-redux'
 import { Router } from 'react-router-dom';
 import { history } from './helpers/history';
-import store from './store'
+import { Store } from './store'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./app.css"
 
 
 ReactDOM.render(
-  <Provider store={store}>
+  <Provider store={Store}>
      <Router history={history}>
       <App />
      </Router>
