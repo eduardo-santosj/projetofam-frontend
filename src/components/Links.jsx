@@ -15,7 +15,6 @@ class Links extends Component {
         button.classList.toggle('collapsed')
     }
     render() {
-        console.log(this.props.LoginReducer.LogginReducerParams.client.isLogged)
         return (
             <React.Fragment>
                 <Item>
