@@ -5,19 +5,13 @@ import thunk from "redux-thunk";
 import { ClientReducer } from './reducers/clientReducer'
 import { LoginReducer } from './reducers/loginReducer'
 
-const reducer = combineReducers({
+const Reducers = combineReducers({
   ClientReducer,
   LoginReducer
 })
+const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const store = createStore(
-  reducer,
-  compose(
-    applyMiddleware(
-      thunk
-    ),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
-  )
-)
-
-export default store;
+export const Store = createStore(
+    Reducers,
+    composeEnhancer(applyMiddleware(thunk))
+);
