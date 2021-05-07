@@ -12,8 +12,6 @@ function loginClient(params) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params)
   };
-  console.log(apiGatewayPrefix);
-  debugger
   return fetch(apiGatewayPrefix.concat("/login"), requestOptions)
     .then(apiHelpers.handleStatus)
     .then(apiHelpers.handleResponse);
