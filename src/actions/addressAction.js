@@ -18,10 +18,12 @@ function getaddress(params, callback) {
 				},
         error => {
           dispatch(failure(error));
+          callback(error)
           return false
 				}
 			).catch(error => {
 				dispatch(failure(error));
+				callback(error)
         return false;
 			});
 	};

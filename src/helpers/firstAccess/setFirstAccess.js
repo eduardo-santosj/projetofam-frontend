@@ -24,21 +24,29 @@ function handleInput(myValue, target, findedItem, callback) {
     case 'Address':
     case 'identificationNumber':
     case 'dateOfBirth':
+    case 'isOng':
+    case 'alreadyAdopted':
+    case 'howManyAdopted':
       return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_CLIENT));
+    case 'gender':
+      value = findedItem.id
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_CLIENT));
+    // Phone
+    case 'homePhone':
+    case 'cellPhone':
+      formatted = value.replace(/[^A-Z0-9]/ig,'');
+      return Store.dispatch(saveStore(formatted, target, setFirstAccessFields.HANDLE_PHONE_CLIENT))
+    // Address
     case 'CEP':
       formatted = value.replace(/[^A-Z0-9]+/ig, "");
       if(formatted.length === 8) Store.dispatch(addressActions.getaddress(formatted, callback))
       return Store.dispatch(saveStore(formatted, target, setFirstAccessFields.HANDLE_ADRESS_CLIENT));
-    case 'homePhone':
-    case 'CellPhone':
-      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_CLIENT))
-
-    // case 'homePhone':
-    // case 'sellerType':
-    // case 'fuelType':
-    // case 'vehicleColor':
-    //   value = findedItem
-    //   return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_CLIENT));
+    case 'type':
+      value = findedItem.id
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_ADRESS_CLIENT));
+    case 'number':
+    case 'complement':
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_ADRESS_CLIENT));
     default:
       return
   }

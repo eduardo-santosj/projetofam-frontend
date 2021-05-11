@@ -51,6 +51,29 @@ button.navbar-toggler{
 .first-access .form-row {
   width: 100%;
 }
+/* Custo CheckedBox */
+.custom-checkbox {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 6px 0 rgba(0,0,0,.3);
+}
+.custom-checkbox.checked {
+  background: #007bff;
+  box-shadow: none;
+}
+
+.custom-checkbox.checked .fa{
+  position: absolute;
+  font-size: 13px;
+  color: #fff;
+  top: 3px;
+  left: 3px;
+}
 @media screen and (min-width: 1024px) {
   .show-md {
     display: flex;

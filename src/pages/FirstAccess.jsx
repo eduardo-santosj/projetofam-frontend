@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { clientActions } from "../actions/clientAction"
 import { connect } from "react-redux";
-
+import moment from "moment-timezone";
 import {
     Row,
     Container,
@@ -25,12 +25,17 @@ import { history } from "../helpers/history";
 class FirstAccess extends Component {
   constructor(props) {
       super(props)
+      
+      this.state = {
+        showAlertMessage: false
+    }
   }
 
   componentDidMount() {
     const { dispatch } = this.props
     const userStorage = JSON.parse(localStorage.getItem("user"));
     dispatch(clientActions.getClient(userStorage.data.email))
+    this.setState({howManyAdoptedList: Array.from({length: 10}, (_, i) => i + 1)})
   }
 
   validateRequiredFields(fields) {
@@ -43,47 +48,119 @@ class FirstAccess extends Component {
     return fieldsValid;
   };
 
-  loginClient = (e) => {
-    e.preventDefault();
-    // const { dispatch } = this.props
-    // const { emailLogin, passwordLogin } = this.state
-    // this.setState({ formSendLogin: true });
-    // const fieldsTarget = [emailLogin, passwordLogin];
-    // const fieldsValid = this.validateRequiredFields(fieldsTarget);
+  handleIncludeClient = async (e) => {
+    e.preventDefault()
+    const { dispatch, ClientReducer } = this.props
+    const { createClientReducer } = ClientReducer
+    const { client } = createClientReducer
+    const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender, id } = client
+    this.setState({ formUpdateClient: true });
+    const fieldsTarget = [name, email, identificationNumber, dateOfBirth, phone.cellPhone, Address.CEP, Address.street, Address.number, Address.state, Address.type, Address.city, Address.neighbourhood, gender];
+    if(Address.type === 2) fieldsTarget.push(Address.complement)
+    if(alreadyAdopted) fieldsTarget.push(howManyAdopted)
+    const fieldsValid = this.validateRequiredFields(fieldsTarget);
 
-    // if ( fieldsValid === false || helpers.validateEmail(emailLogin) === false ) return
+    if (fieldsValid === false) return
+    
+    let validation = dateOfBirth.split("/");
+    let day = validation[0];
+    let month = validation[1];
+    let year = validation[2];
+    validation = year + '-' + month + '-' + day;
 
-    // const payload = { emailLogin, passwordLogin }
-    // dispatch(loginActions.loginClient(payload, this.callbackLoginClient))
+    const payload = { name, email, identificationNumber, validation, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender}
+
+    dispatch(clientActions.updateClient(id, payload, this.callbackClientUpdateSuccess))
+  }
+
+  callbackClientUpdateSuccess = async (response) => {
+    const { dispatch, LoginReducer } = this.props
+    const { LogginReducerParams } = LoginReducer
+    const { client } = LogginReducerParams
+    let resolveResponse = await Promise.resolve(response)
+    if(resolveResponse.success) {
+      let finalizeRegistration = false
+      const payload = { finalizeRegistration }
+      dispatch(clientActions.updatePreClient(client.id, payload, this.callbackClientUpdate))
+    } else {
+      let toDiv = document.getElementById('fixedBehavior');
+      this.setState({ showAlertMessage: true, typeMessage: resolveResponse.success, messageAlert: resolveResponse.message })
+      toDiv.scrollIntoView({ behavior: "smooth" });
+      setTimeout(
+        () => this.setState({ showAlertMessage: false }), 
+        10000
+      );
+    }
+  }
+
+  callbackClientUpdate = async (response) => {
+    let resolveResponse = await Promise.resolve(response)
+    if(resolveResponse.success) {
+      this.props.history.push('/')
+    } else {
+      let toDiv = document.getElementById('fixedBehavior');
+      this.setState({ showAlertMessage: true, typeMessage: resolveResponse.success, messageAlert: resolveResponse.message })
+      toDiv.scrollIntoView({ behavior: "smooth" });
+      setTimeout(
+        () => this.setState({ showAlertMessage: false }), 
+        10000
+      );
+    }
   }
 
   setCallbackaddress = async (res) => {
     const { dispatch } = this.props
+    let resolveResponse = await Promise.resolve(res)
     let Address = []
-    Address = {
-      CEP: res.address.cep,
-      street: res.address.logradouro,
-      number: '',
-      complement: '',
-      neighbourhood: res.address.bairro,
-      state: res.address.uf,
-      type: '',
-      city: res.address.localidade,
+    if(resolveResponse.success) {
+      Address = {
+        CEP: res.address.cep,
+        street: res.address.logradouro,
+        number: '',
+        complement: '',
+        neighbourhood: res.address.bairro,
+        state: res.address.uf,
+        type: '',
+        city: res.address.localidade,
+      }
+    } else {
+      let toDiv = document.getElementById('fixedBehavior');
+      this.setState({ showAlertMessage: true, typeMessage: resolveResponse.success, messageAlert: resolveResponse.message })
+      toDiv.scrollIntoView({ behavior: "smooth" });
+      Address = {
+        CEP: this.props.ClientReducer.createClientReducer.client.Address.CEP,
+        street: '',
+        number: '',
+        complement: '',
+        neighbourhood: '',
+        state: '',
+        type: '',
+        city: '',
+        AddressError: resolveResponse.message
+      }
+      setTimeout(
+        () => this.setState({ showAlertMessage: false }), 
+        10000
+      );
     }
     dispatch(setFirtAcessHelpers.handleInput(Address, "Address"))
   }
 
   render() {
-    const { ClientReducer } = this.props
+    const { ClientReducer, InfosReducer } = this.props
     const { createClientReducer } = ClientReducer
+    const { createInfosReducer = {} } = InfosReducer
     const { client } = createClientReducer
     const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender } = client
-    const { CellPhone, homePhone } = phone
-    const { CEP, street, number, complement, state, type, city, neighbourhood } = Address
+    const { cellPhone, homePhone } = phone
+    const { CEP, street, number, complement, state, type, city, neighbourhood, AddressError } = Address
+    const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formUpdateClient } = this.state
+  
+    if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('10 ou mais')) howManyAdoptedList.push('10 ou mais')
     return (
       <React.Fragment>
-        {/* {showAlertMessage && 
-        <ShowAlert ref="child" type={typeMessage} show={showAlertMessage} message={messageAlert}/>} */}
+        {showAlertMessage && 
+        <ShowAlert ref="child" type={typeMessage} show={showAlertMessage} message={messageAlert}/>}
         <Container className="first-access">
           <Row className="justify-content-md-center mt-6">
             <Col xs={12}>
@@ -112,7 +189,7 @@ class FirstAccess extends Component {
                         minlength="4"
                         disabled={name}
                         // errorMsg='Insira o nome copleto'
-                        // error={formCreatedClient && (!name || !validName || !nameHasNotAllowedWord)} 
+                        // error={formUpdateClient && (!name || !validName || !nameHasNotAllowedWord)} 
                         />
                       <MaterialInput
                         type="text"
@@ -124,11 +201,9 @@ class FirstAccess extends Component {
                         id="email"
                         value={email}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "email")}
-                        optionValue="value"
-                        optionText="label"
                         disabled={email}
                         // errorMsg='Insira um email valido'
-                        // error={formCreatedClient && (!email || !validEmail || !emailHasNotAllowedWord)} 
+                        // error={formUpdateClient && (!email || !validEmail || !emailHasNotAllowedWord)} 
                       />
                       <CustomInputMask
                         containerClass="col-12 col-md-4"
@@ -139,9 +214,8 @@ class FirstAccess extends Component {
                         name="identificationNumber"
                         value={identificationNumber}
                         // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
-                        // errorMsg={personType === "PF" ? this.state.client.sameCPF ? 'CPF do Cliente Não é permitido usar mesmo número de CPF para: Cônjuge; Avalista; Procurador e Vendedor' : 'Informe um CPF válido' : 'Informe um CNPJ Válido'}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
-                        error={(!identificationNumber || !helpers.validateCPF(identificationNumber))}
+                        errorMsg={'Informe um CPF válido'}
+                        error={formUpdateClient && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
                       />
                     </Form.Row>
                     <Form.Row>
@@ -153,8 +227,8 @@ class FirstAccess extends Component {
                         name="dateOfBirth"
                         value={dateOfBirth}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "dateOfBirth")}
-                        // error={clientPfSubmitted && (!dateOfBirth || !this.birthDateValidationPfInsured(dateOfBirth).isValid || !this.dateCompare(dateOfBirth))}
-                        // errorMsg={!dateOfBirth ? "Informe a data de nascimento" : !this.birthDateValidationPfInsured(dateOfBirth).isValid ? this.birthDateValidationPfInsured(dateOfBirth).message : "Informe uma data válida"}
+                        error={formUpdateClient && (!dateOfBirth || !helpers.dateCompare(dateOfBirth))}
+                        errorMsg={!dateOfBirth ? "Informe a data de nascimento" : !helpers.dateCompare(dateOfBirth) ? "Informe uma data válida" : "Informe a data de nascimento"}
                       />
                       <MaterialInput
                         type="select"
@@ -165,37 +239,32 @@ class FirstAccess extends Component {
                         optionValue="id"
                         optionText="name"
                         value={gender}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender")}
-                        // list={genders.gendersList}
-                        // error={clientPfSubmitted && !gender}
-                        // errorMsg="Informe o sexo"
+                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", createInfosReducer.genderList.find(item => item.id === Number(event.target.value)))}
+                        list={createInfosReducer.genderList}
+                        error={formUpdateClient && !gender}
+                        errorMsg="Informe o sexo"
                       />
                     </Form.Row>
                     <Form.Row>
-                      <MaterialInput
-                        type="text"
+                      <CustomInputMask
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
-                        label="Telefone Casa*"
+                        mask="(99) 9999-9999"
+                        label="Telefone Casa"
                         name="homePhone"
                         value={homePhone}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "homePhone")}
-                        // errorMsg="Informe um telefone válido"
-                        // error={clientPfSubmitted && (!phoneNumber || !helpers.validatePhone(phoneNumber))}
                       />
-                      <MaterialInput
-                        type="text"
+                      <CustomInputMask
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
+                        mask="(99) 99999-9999"
                         label="Telefone Celular*"
-                        name="CellPhone"
-                        value={CellPhone}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "CellPhone")}
-                        // errorMsg="Informe um telefone válido"
-                        // disclaimerMsg={this.state.personType === 'PF' ? "Este número de celular receberá a senha por SMS para assinatura eletrônica. Caso alterado posteriormente, deverá passar por reanálise de crédito." : ''}
-                        // disclaimer={this.state.personType === 'PF' ? this.birthDateValidationMsgDisclaimer(dateOfBirth) && helpers.getModule(modulesReducer, 'esign') : ''}
-                        // //teste
-                        // error={(clientPfSubmitted || clientPjSubmitted) && (!cellPhone || !helpers.validatePhone(cellPhone,true))}
+                        name="cellPhone"
+                        value={cellPhone}
+                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "cellPhone")}
+                        error={formUpdateClient && (!cellPhone || !helpers.validatePhone(helpers.phoneMask(cellPhone), true))}
+                        errorMsg={"Informe um telefone celular válido"}
                       />
                     </Form.Row>
                     <Form.Row>
@@ -207,8 +276,8 @@ class FirstAccess extends Component {
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "CEP",'', this.setCallbackaddress)}
                         name="CEP"
                         value={CEP}
-                        // errorMsg={client.errorCepMessage ? client.errorCepMessage : 'Informe um cep válido'}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && ((!postcode || postcode.indexOf("_") >= 0)) || client.addressError}
+                        errorMsg={'Informe um cep válido'}
+                        error={ (formUpdateClient && (!CEP || CEP.indexOf("_") >= 0)) || AddressError}
                       />
                               
                       <MaterialInput
@@ -216,14 +285,13 @@ class FirstAccess extends Component {
                         inputClass="form-control"
                         type="text"
                         label="Endereço*"
-                        // disabled={!client.loadingAddress && client.addressError ? true : client.cepGeneric ? false : storedAddress && storedAddress.street && storedAddress.street.length > 40 ? false : client.apiNotFound ? false : true}
-                        // disabled={!client.loadingAddress ? false : true}
+                        disabled={true}
+                        disabled={true}
                         name="street"
                         value={street}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "street")}
-                        // errorMsg={address && address.length > 40 ? "Campo deve conter até 40 caracteres" : "Informe o endereço"}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && ((!address || address) && address.length > 40)}
-                        // maxlength="40"
+                        errorMsg={"Informe o endereço"}
+                        error={formUpdateClient && (!street)}
                       />
                       <MaterialInput
                         type="select"
@@ -232,12 +300,12 @@ class FirstAccess extends Component {
                         label="Tipo*"
                         name="type"
                         value={type}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "type")}
-                        // list={addressTypes}
-                        // optionValue="name"
-                        // optionText="name"
-                        // errorMsg={"Informe o tipo"}
-                        // error={clientPfSubmitted && !addressType}
+                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
+                        list={createInfosReducer.typesHouseList}
+                        optionValue="id"
+                        optionText="name"
+                        errorMsg={"Informe o tipo"}
+                        error={formUpdateClient && !type}
                       />
                     </Form.Row>
                     <Form.Row>
@@ -249,79 +317,88 @@ class FirstAccess extends Component {
                         name="number"
                         value={number}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "number")}
-                        // errorMsg={"Informe o número"}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && !houseNumber}
+                        errorMsg={"Informe o número"}
+                        error={formUpdateClient && !number}
                         maxlength="10"
                       />
                       <MaterialInput
                         containerClass="col-12 col-md-4"
                         inputClass="form-control"
                         type="text"
-                        // disabled={!client.loadingAddress && client.errorAddress ? false : client.cepGeneric ? false : storedAddress && storedAddress.neighborhood && storedAddress.neighborhood.length > 60 ? false : client.apiNotFound ? false : true}
-                        // disabled={!client.loadingAddress && client.errorAddress ? false /*: client.cepGeneric ? false*/ : storedAddress && storedAddress.neighborhood && storedAddress.neighborhood.length > 60}
+                        disabled={true}
                         label="Bairro*"
                         name="neighbourhood"
                         value={neighbourhood}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "neighbourhood")}
-                        // errorMsg={neighbourhood && neighbourhood.length > 60 ? "Campo deve conter até 60 caracteres" : "Informe o logradouro"}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && ((!neighbourhood || neighbourhood )&& neighbourhood.length > 60)}
+                        errorMsg={"Informe o Bairro"}
+                        error={formUpdateClient && (!neighbourhood)}
                         // maxlength="60"
                       />
                       <MaterialInput
-                        // disabled={!client.loadingAddress && client.errorAddress ? false : client.cepGeneric ? false : client.apiNotFound ? false : true}
-                        // disabled={!client.loadingAddress /*&& client.errorAddress ? false : client.cepGeneric*/ }
-                        type="select"
+                        disabled={true}
+                        type="text"
                         containerClass="col-12 col-md-4"
                         inputClass="form-control"
                         label="Estado*"
                         name="state"
                         value={state}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "state")}
-                        // list={states}
-                        // optionValue="stateAbbreviation"
-                        // optionText="state"
-                        // errorMsg={"Informe o estado"}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && !stateProvince }
+                        errorMsg={"Informe o estado"}
+                        error={formUpdateClient && !state }
                       />
                     </Form.Row>
                     <Form.Row>
                       <MaterialInput
-                        type="select"
+                        type="text"
                         containerClass="col-12 col-md-3"
-                        inputClass="custom-select"
+                        inputClass="form-control"
                         label="Cidade*"
                         name="city"
-                        // disabled={!client.loadingAddress && client.errorAddress ? false : client.cepGeneric ? false : client.apiNotFound ? false : true}
-                        // disabled={!client.loadingAddress ? false : true}
+                        disabled={true}
                         value={city}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "city")}
-                        // list={cityList}
-                        // optionValue="id"
-                        // optionText="city"
-                        // errorMsg={"Informe a cidade"}
-                        // error={(clientPfSubmitted || clientPjSubmitted) && !city}
+                        errorMsg={"Informe a cidade"}
+                        error={formUpdateClient && !city}
                       />
                       <MaterialInput
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         type="text"
-                        label="Complemento"
+                        label={type === 2 ? "Complemento*" : "Complemento"}
                         name="complement"
                         value={complement}
-                        // errorMsg={"Informe o complemento"}
-                        // error={clientPfSubmitted && addressTypeIsApartment && !complement}
+                        errorMsg={"Informe o complemento"}
+                        error={formUpdateClient && type === 2 && !complement}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "complement")}
                         maxlength="25"
                       />
                     </Form.Row>
                     <Form.Row>
-                      <div className="col-12 col-md-6 checkboxes mt-3">
-                        <CustomCheckbox onClick={(event) => setFirtAcessHelpers.handleInput(event, "isOng")} checked={isOng} />
+                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex justify-content-center align-items-center">
+                        <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!isOng, "isOng")} checked={isOng} />
                         <label className="pl-2 text">Você faz parte de alguma ong de adoção?</label>
                       </div>
-                      <div className="col-12 col-md-6 checkboxes mt-3">
-                        <CustomCheckbox onClick={(event) => setFirtAcessHelpers.handleInput(event, "alreadyAdopted")} checked={alreadyAdopted} />
-                        <label className="pl-2 text">Você possui pets adotados?</label>
+                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex  flex-column">
+                        <Form.Row className="justify-content-center align-items-center">
+                          <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!alreadyAdopted, "alreadyAdopted")} checked={alreadyAdopted} />
+                          <label className="pl-2 text">Você possui pets adotados?</label>
+                        </Form.Row>
+                        {alreadyAdopted && 
+                          <Form.Row className="mt-3">
+                            <MaterialInput
+                              type="select"
+                              containerClass="col-12 col-md-12"
+                              inputClass="custom-select"
+                              label="Quantos animais tem adotado?*"
+                              name="howManyAdopted"
+                              value={howManyAdopted}
+                              onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
+                              list={howManyAdoptedList}
+                              errorMsg={"Informe o tipo"}
+                              error={formUpdateClient &&  !howManyAdopted}
+                            />
+                          </Form.Row>
+                        }
                       </div>
                     </Form.Row>
                     <div className="col-12 text-center">
@@ -342,9 +419,11 @@ class FirstAccess extends Component {
 }
 
 const mapStateToProps = state => {
-  const { ClientReducer} = state;
+  const { ClientReducer, InfosReducer, LoginReducer } = state;
   return {
-    ClientReducer
+    ClientReducer,
+    InfosReducer,
+    LoginReducer
   }
 };
 

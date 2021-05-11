@@ -6,6 +6,7 @@ const initialState = {
       isLogged: false,
       email: '',
       name: '',
+      id:'',
       finalizeRegistration: false
     },
     message: '',
@@ -23,7 +24,7 @@ export const LoginReducer = (state = initialState, action) => {
     case LoginActionTypes.CREATE_LOGIN_SUCCESS:
       return {
         ...state,
-        LogginReducerParams: {...state.LogginReducerParams, client: {isLogged: action.response.success, email: action.response.data.email, name: action.response.data.name, finalizeRegistration: action.response.data.finalizeRegistration }, isLoading: false}
+        LogginReducerParams: {...state.LogginReducerParams, client: {isLogged: action.response.success, email: action.response.data.email,id:action.response.data.id, name: action.response.data.name, finalizeRegistration: action.response.data.finalizeRegistration }, isLoading: false}
       };
     case LoginActionTypes.CREATE_LOGIN_FAILURE:
       return {

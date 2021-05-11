@@ -11,6 +11,10 @@ import {
     Button
 } from 'react-bootstrap'
 
+//Actions 
+import { GenderActions } from "../actions/helpers/genderActions"
+import { TypesHouseActions } from "../actions/helpers/typesHouseActions"
+
 //Alert
 import ShowAlert from '../helpers/alertHelper'
 import MaterialInput from '../helpers/inputs/materialInput'
@@ -41,6 +45,12 @@ class LoginPage extends Component {
           passwordLogin: '',
           formSendLogin: false
       }
+  }
+
+  componentDidMount() {
+    const { dispatch } = this.props
+    dispatch(GenderActions.getGender())
+    dispatch(TypesHouseActions.getTypesHouse())
   }
 
   handleChangeInput = (event, type) => {

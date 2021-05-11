@@ -8,8 +8,12 @@ const initialState = {
       email: '',
       dateOfBirth: '',
       identificationNumber: '',
+      gender: {
+        name: '',
+        id: '',
+      },
       phone: {
-        CellPhone: '',
+        cellPhone: '',
         homePhone: '',
       },
       Address: {
@@ -71,7 +75,7 @@ export const ClientReducer = (state = initialState, action) => {
       return { ...state, createClientReducer: {...state.createClientReducer, client: {...state.createClientReducer.client, Address: {...state.createClientReducer.client.Address, [action.target]: action.value }}}};
 
     case setFirstAccessFields.HANDLE_PHONE_CLIENT:
-      return { ...state, createClientReducer: {...state.createClientReducer, client: {...state.createClientReducer.client, phone: {...state.createClientReducer.client.Address, [action.target]: action.value }}}};
+      return { ...state, createClientReducer: {...state.createClientReducer, client: {...state.createClientReducer.client, phone: {...state.createClientReducer.client.phone, [action.target]: action.value }}}};
     default:
       return state;
   }

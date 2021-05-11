@@ -17,13 +17,18 @@ export const helpers = {
 		}, 10);
 	},
 
+	formatDateToView: function(dateTarget) {
+		return moment(dateTarget).format("DD/MM/YYYY");
+	},
+	
+
 	formatDate: function (dateTarget, format) {
 		if (dateTarget === null || dateTarget === undefined || dateTarget === "") return;
-		moment(dateTarget).format(format);
+		return moment(dateTarget, format).format();
 	},
 
 	formatDateToRequest: function (dateTarget) {
-		this.formatDate(dateTarget, "YYYY-MM-DD");
+		return this.formatDate(dateTarget, "YYYY-MM-DD");
 	},
 
 	getDate: function () {
@@ -44,6 +49,31 @@ export const helpers = {
 		});
 		return contentTarget;
 	},
+
+	insertParenthesisInPhone: function (phone) {
+		if (phone === undefined || phone === null || phone === '') return phone;
+		let phoneMapped = this.insertInString(phone, 0, "(");
+		phoneMapped = this.insertInString(phoneMapped, 3, ")");
+		phoneMapped = this.insertInString(phoneMapped, 4, " ");
+		return phoneMapped
+	},
+
+	dateCompare: function (value) {
+    // current Date
+    let currentDate = new Date();
+    let currentDay = String(currentDate.getDate()).padStart(2, '0');
+    let currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let currentYear = currentDate.getFullYear();
+    // inputed date
+    let validation = value.split("/");
+    let day = validation[0];
+    let month = validation[1];
+    let year = validation[2];
+    currentDate = currentYear + '-' + currentMonth + '-' + currentDay;
+    validation = year + '-' + month + '-' + day;
+    value = validation < currentDate;
+    return value;
+  },
 
 	validateCPF: function (cpf) {
 		if (cpf === undefined || cpf === null) return false;

@@ -11,6 +11,4 @@ app.get('/', function (req, res) {
 
 app.listen(process.env.PORT || 8000, (error) => {
   if(error) {return console.log(error)}
-
-  return console.log('tudo certo')
 })

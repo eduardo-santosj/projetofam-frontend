@@ -5,6 +5,8 @@ import { ClientActionTypes } from "../types/clientTypes";
 
 export const clientActions = {
   createClient,
+	updateClient,
+	updatePreClient,
 	getClient
 };
 
@@ -12,6 +14,60 @@ function createClient(params, callback) {
 	return dispatch => {
     dispatch(request());
 		return clientHandler.createClient(params)
+			.then(
+        response => {
+					dispatch(success(response));
+          if (callback) callback(response);
+          return response;
+				},
+        error => {
+          dispatch(failure(error));
+          callback(error);
+          return false
+				}
+			).catch(error => {
+				dispatch(failure(error));
+				callback(error);
+        return false;
+			});
+	};
+
+	function request() { return { type: ClientActionTypes.CREATE_CLIENT_REQUEST } }
+	function success(response) { return { type: ClientActionTypes.CREATE_CLIENT_SUCCESS, response } }
+	function failure(error) { return { type: ClientActionTypes.CREATE_CLIENT_FAILURE, error } }
+}
+
+function updateClient(idUpdate, params,  callback) {
+	return dispatch => {
+    dispatch(request());
+		return clientHandler.updateClient(idUpdate, params)
+			.then(
+        response => {
+					dispatch(success(response));
+          if (callback) callback(response);
+          return response;
+				},
+        error => {
+          dispatch(failure(error));
+          callback(error);
+          return false
+				}
+			).catch(error => {
+				dispatch(failure(error));
+				callback(error);
+        return false;
+			});
+	};
+
+	function request() { return { type: ClientActionTypes.CREATE_CLIENT_REQUEST } }
+	function success(response) { return { type: ClientActionTypes.CREATE_CLIENT_SUCCESS, response } }
+	function failure(error) { return { type: ClientActionTypes.CREATE_CLIENT_FAILURE, error } }
+}
+
+function updatePreClient(idUpdate, params,  callback) {
+	return dispatch => {
+    dispatch(request());
+		return clientHandler.updatePreClient(idUpdate, params)
 			.then(
         response => {
 					dispatch(success(response));
