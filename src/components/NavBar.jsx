@@ -18,13 +18,13 @@ class NavBar extends Component {
   }
   render() {
     return (
-      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="position-navbar">
+      <Navbar collapseOnSelect expand="true" className="position-navbar">
         <div className="position-menu">
-          <Navbar.Brand href="/">S.O.S. Pet</Navbar.Brand>  
+          <Navbar.Brand href="/home">S.O.S. Pet</Navbar.Brand>  
           <Navbar.Toggle aria-controls="responsive-navbar-nav" id="button-open-menu" onClick={this.handleclick} />
-          <Nav className="ml-auto justify-content-end show-md" id="navMenu">
+          {/* <Nav className="ml-auto justify-content-end show-md" id="navMenu">
             <Links />
-          </Nav>
+          </Nav> */}
         </div>
         <div className="hidden-md">
           <Navbar.Collapse id="responsive-navbar-nav" >

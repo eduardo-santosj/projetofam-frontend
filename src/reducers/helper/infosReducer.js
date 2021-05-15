@@ -3,8 +3,14 @@ import { TypesHouseActionTypes } from '../../types/helpers/typesHouseTypes';
 
 const initialState = {
   createInfosReducer: {
-    genderList: {},
-    typesHouseList: {},
+    genders: {
+      loading: false,
+      genderList: []
+    },
+    typesHouses: {
+      loading: false,
+      typesHouseList: []
+    },
   }
 };
 
@@ -13,33 +19,33 @@ export const InfosReducer = (state = initialState, action) => {
     case GenderActionTypes.GET_GENDER_REQUEST:
       return {
         ...state,
-        createInfosReducer: {...state.createInfosReducer, isLoading: true },
+        createInfosReducer: {...state.createInfosReducer, genders: {...state.createInfosReducer.genderList, loading: true }},
       };
     case GenderActionTypes.GET_GENDER_SUCCESS:
       return {
         ...state,
-        createInfosReducer: {...state.createInfosReducer, genderList: action.response.genderList, isLoading: false },
+        createInfosReducer: {...state.createInfosReducer, genders: { loading: false, genderList: action.response.genderList } }
       };
     case GenderActionTypes.GET_GENDER_FAILURE:
       return {
         ...state,
-        createInfosReducer: {...state.createInfosReducer, genderList: state.createInfosReducer.genderList, isLoading: false },
+        createInfosReducer: {...state.createInfosReducer, genders: {...state.createInfosReducer.genderList, loading: false }},
       };
 
     case TypesHouseActionTypes.GET_TYPES_HOUSE_REQUEST:
       return {
         ...state,
-        createInfosReducer: {...state.createInfosReducer, isLoading: true },
+        createInfosReducer: {...state.createInfosReducer, typesHouses: {...state.createInfosReducer.typesHouseList, loading: true } },
       };
     case TypesHouseActionTypes.GET_TYPES_HOUSE_SUCCESS:
       return {
         ...state,
-        createInfosReducer: {...state.createInfosReducer, typesHouseList: action.response.typesHouseList, isLoading: false },
+        createInfosReducer: {...state.createInfosReducer, typesHouses: { loading: false, typesHouseList: action.response.typesHouseList } },
       };
     case TypesHouseActionTypes.GET_TYPES_HOUSE_FAILURE:
       return {
         ...state,
-        createInfosReducer: {...state.createInfosReducer, typesHouseList: state.createInfosReducer.typesHouseList, isLoading: false },
+        createInfosReducer: {...state.createInfosReducer, typesHouses: {...state.createInfosReducer.typesHouseList, loading: false } },
       };
     
     default:

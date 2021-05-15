@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { clientActions } from "../actions/clientAction"
 import { connect } from "react-redux";
+import moment from "moment-timezone";
 import {
     Row,
     Container,
@@ -21,10 +22,11 @@ import { helpers } from "../helpers/validate/validateInput";
 import { setFirtAcessHelpers } from "../helpers/firstAccess/setFirstAccess"
 import CustomInputMask from '../components/customInputMask/customInputMask'
 import CustomCheckbox from '../components/customCheckBox/customCheckBox'
+import { wordIsAllowed } from "../helpers/configuration";
 import { history } from "../helpers/history";
 
 
-class FirstAccess extends Component {
+class MySpace extends Component {
   constructor(props) {
       super(props)
       
@@ -33,17 +35,19 @@ class FirstAccess extends Component {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     const { dispatch } = this.props
-    await dispatch(GenderActions.getGender())
-    await dispatch(TypesHouseActions.getTypesHouse())
+    dispatch(GenderActions.getGender())
+    dispatch(TypesHouseActions.getTypesHouse())
   }
 
   componentDidMount() {
     const { dispatch } = this.props
+    dispatch(GenderActions.getGender())
+    dispatch(TypesHouseActions.getTypesHouse())
     const userStorage = JSON.parse(localStorage.getItem("user"));
     dispatch(clientActions.getClient(userStorage.data.email))
-    this.setState({howManyAdoptedList: Array.from({length: 9}, (_, i) => i + 1)})
+    this.setState({howManyAdoptedList: Array.from({length: 199}, (_, i) => i + 1)})
   }
 
   validateRequiredFields(fields) {
@@ -157,14 +161,15 @@ class FirstAccess extends Component {
   render() {
     const { ClientReducer, InfosReducer } = this.props
     const { createClientReducer } = ClientReducer
-    const { createInfosReducer = {} } = InfosReducer
+    const { createInfosReducer } = InfosReducer
+    const { genders , typesHouses } = createInfosReducer
     const { client } = createClientReducer
     const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender } = client
     const { cellPhone, homePhone } = phone
     const { zipcode, street, number, complement, state, type, city, neighbourhood, AddressError } = Address
     const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formUpdateClient } = this.state
   
-    if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('10 ou mais')) howManyAdoptedList.push('10 ou mais')
+    if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('200 ou mais')) howManyAdoptedList.push('200 ou mais')
     return (
       <React.Fragment>
         {showAlertMessage && 
@@ -247,8 +252,9 @@ class FirstAccess extends Component {
                         optionValue="id"
                         optionText="name"
                         value={gender}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", createInfosReducer.genderList.find(item => item.id === Number(event.target.value)))}
-                        list={createInfosReducer.genderList && createInfosReducer.genderList}
+                        disabled={genders && genders.loading}
+                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", genders.genderList.find(item => item.id === Number(event.target.value)))}
+                        list={genders && genders.genderList}
                         error={formUpdateClient && !gender}
                         errorMsg="Informe o sexo"
                       />
@@ -306,9 +312,10 @@ class FirstAccess extends Component {
                         inputClass="custom-select"
                         label="Tipo*"
                         name="type"
+                        disabled={typesHouses && typesHouses.loading}
                         value={type}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
-                        list={createInfosReducer.typesHouseList && createInfosReducer.typesHouseList}
+                        list={typesHouses && typesHouses.typesHouseList}
                         optionValue="id"
                         optionText="name"
                         errorMsg={"Informe o tipo"}
@@ -434,4 +441,4 @@ const mapStateToProps = state => {
   }
 };
 
-export default connect(mapStateToProps)(FirstAccess);
+export default connect(mapStateToProps)(MySpace);

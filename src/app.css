@@ -6,17 +6,58 @@
   z-index: 11;
   max-width: 230px;
 }
+
+/* Images */
+.img-header {
+  height: 400px;
+  width: 100%;
+}
+
+/* Button */
+.btn-outline-success {
+  color: #A6524B;
+  border-color: #A6524B;
+}
+.btn-outline-success:hover {
+  color: #fff;
+  background-color: #A6524B;
+  border-color: #A6524B;
+}
+.btn-success {
+  color: #fff;
+  background-color: #F2B6B6;
+  border-color: #F2B6B6;
+}
+
+.btn-success:hover {
+  color: #fff;
+  background-color: #A6524B;
+  border-color: #A6524B;
+}
+
 /* Navbar */
 .position-menu {
   display: flex;
   align-self: normal;
   padding-bottom: 10px;
+  color: #1d1d1f;
+}
+.navbar-light .navbar-brand {
+  color: #1d1d1f;
+}
+.navbar-light .navbar-toggler {
+  color: #1d1d1f;
+  border-color: #1d1d1f;
+}
+.navbar-light .navbar-nav .nav-link {
+  color: #1d1d1f;
 }
 .position-navbar {
   flex-direction: column;
   position: fixed;
   width: 100%;
   z-index: 10;
+  background: #F2B6B6;
 }
 .fixed-menu {
   padding-top: 104px;
@@ -24,11 +65,9 @@
 button.navbar-toggler{
   margin-left: auto;
 }
-
 .margin-search {
   margin-left: auto;
 }
-
 .show-md {
   display: none;
 }
@@ -66,7 +105,6 @@ button.navbar-toggler{
   background: #007bff;
   box-shadow: none;
 }
-
 .custom-checkbox.checked .fa{
   position: absolute;
   font-size: 13px;
@@ -74,12 +112,14 @@ button.navbar-toggler{
   top: 3px;
   left: 3px;
 }
+
 @media screen and (min-width: 1024px) {
   .show-md {
     display: flex;
   }
-  .hidden-md {
-    display: none;
+  .img-header {
+    height: 330px;
+    width: 100%;
   }
 }
 
@@ -96,5 +136,9 @@ button.navbar-toggler{
   }
   .margin-search .form-inline .search-button{
     margin-left: 10px;
+  }
+  .img-header {
+    height: 230px;
+    width: 100%;
   }
 }

@@ -1,30 +1,43 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
+import { PrivateRouter } from '../components/privateRouter'
 
 
-import { NavBar } from '../components'
-import { HomePage, ClientsList, ClientsInsert, ClientsUpdate, LoginPage, WhoAre, FirstAccess } from '../pages'
+import { NavBar, Footer } from '../components'
+import { HomePage, ClientsList, ClientsInsert, ClientsUpdate, LoginPage, WhoAre, FirstAccess, OngCreate, MySpace } from '../pages'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 function App() {
+    if (window.performance) {
+        if (performance.navigation.type === 1) {
+            window.localStorage.removeItem("user");
+        }
+      }
     return (
         <Router>
+            
             <NavBar />
             <div className="fixed-menu" id="fixedBehavior"></div>
                 <Switch>
-                    <Route path="/" exact component={HomePage}/>
+                    <Route exact path="/">
+                        <Redirect to="/home" />
+                    </Route>
+                    <Route path="/home" exact component={HomePage}/>
                     <Route path="/clients/list" exact component={ClientsList} />
                     <Route path="/clients/create" exact component={ClientsInsert} />
                     <Route path="/login" exact component={LoginPage}/>
                     <Route path="/who-are" exact component={WhoAre}/>
-                    <Route path="/first-access" exact component={FirstAccess}/>
+                    <PrivateRouter path="/first-access" exact component={FirstAccess}/>
+                    <PrivateRouter path="/my-space" exact component={MySpace}/>
+                    <Route path="/creat-ong" exact component={OngCreate}/>
                     <Route
                         path="/clients/update/:id"
                         exact
                         component={ClientsUpdate}
                     />
                 </Switch>
+            <Footer />
         </Router>
     )
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { clientActions } from "../actions/clientAction"
+import { ongActions } from "../actions/ongAction"
 import { connect } from "react-redux";
 import {
     Row,
@@ -18,13 +18,12 @@ import { TypesHouseActions } from "../actions/helpers/typesHouseActions"
 import ShowAlert from '../helpers/alertHelper'
 import MaterialInput from '../helpers/inputs/materialInput'
 import { helpers } from "../helpers/validate/validateInput";
-import { setFirtAcessHelpers } from "../helpers/firstAccess/setFirstAccess"
+import { setOngsHelpers } from "../helpers/firstAccess/setOngInfos"
 import CustomInputMask from '../components/customInputMask/customInputMask'
-import CustomCheckbox from '../components/customCheckBox/customCheckBox'
-import { history } from "../helpers/history";
+import { wordIsAllowed } from "../helpers/configuration";
 
 
-class FirstAccess extends Component {
+class OngCreat extends Component {
   constructor(props) {
       super(props)
       
@@ -40,10 +39,28 @@ class FirstAccess extends Component {
   }
 
   componentDidMount() {
+    this.setState({howManyAdoptedList: Array.from({length: 199}, (_, i) => i + 1)})
+  }
+
+  handleChangeInput = (event, type) => {
     const { dispatch } = this.props
-    const userStorage = JSON.parse(localStorage.getItem("user"));
-    dispatch(clientActions.getClient(userStorage.data.email))
-    this.setState({howManyAdoptedList: Array.from({length: 9}, (_, i) => i + 1)})
+    const valueMapped = event.target.value
+    switch (type) {
+      case "password":
+        event.preventDefault();
+        const validPass = helpers.validatePassword(valueMapped);
+        this.setState({ [type]: valueMapped, validPass: validPass }, () => {
+          dispatch(setOngsHelpers.handleInput(valueMapped, "password"))
+        })
+        break;
+
+      case "confirmPassword":
+        event.preventDefault();
+        const validPassword = this.props.OngReducer.createOngReducer.ongs.password === valueMapped ? true : false
+        this.setState({ [type]: valueMapped, iqualPassword: validPassword})
+        break;
+    }
+    
   }
 
   validateRequiredFields(fields) {
@@ -58,17 +75,16 @@ class FirstAccess extends Component {
 
   handleIncludeClient = async (e) => {
     e.preventDefault()
-    const { dispatch, ClientReducer } = this.props
-    const { createClientReducer } = ClientReducer
-    const { client } = createClientReducer
-    const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender, id } = client
-    this.setState({ formUpdateClient: true });
-    const fieldsTarget = [name, email, identificationNumber, dateOfBirth, phone.cellPhone, Address.zipcode, Address.street, Address.number, Address.state, Address.type, Address.city, Address.neighbourhood, gender];
-    if(Address.type === 2) fieldsTarget.push(Address.complement)
-    if(alreadyAdopted) fieldsTarget.push(howManyAdopted)
+    const { dispatch, OngReducer } = this.props
+    const { createOngReducer } = OngReducer
+    const { ongs } = createOngReducer
+    const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, password } = ongs
+    this.setState({ formCreatOng: true });
+    const fieldsTarget = [name, email, identificationNumber, dateOfBirth, phone.cellPhone, Address.zipcode, Address.street, Address.number, Address.state, Address.city, Address.neighbourhood, howManyAdopted, password ];
     const fieldsValid = this.validateRequiredFields(fieldsTarget);
+    const validName = helpers.validateFullName(name)
 
-    if (fieldsValid === false) return
+    if (!fieldsValid || !validName || !this.state.iqualPassword) return
     
     let validation = dateOfBirth.split("/");
     let day = validation[0];
@@ -76,20 +92,15 @@ class FirstAccess extends Component {
     let year = validation[2];
     validation = year + '-' + month + '-' + day;
 
-    const payload = { name, email, identificationNumber, validation, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender}
+    const payload = { name, email, identificationNumber, validation, phone, Address, isOng, alreadyAdopted, howManyAdopted, password}
 
-    dispatch(clientActions.updateClient(id, payload, this.callbackClientUpdateSuccess))
+    dispatch(ongActions.createOng(payload, this.callbackClientUpdateSuccess))
   }
 
   callbackClientUpdateSuccess = async (response) => {
-    const { dispatch, LoginReducer } = this.props
-    const { LogginReducerParams } = LoginReducer
-    const { client } = LogginReducerParams
     let resolveResponse = await Promise.resolve(response)
     if(resolveResponse.success) {
-      let finalizeRegistration = false
-      const payload = { finalizeRegistration }
-      dispatch(clientActions.updatePreClient(client.id, payload, this.callbackClientUpdate))
+      this.props.history.push('/login')
     } else {
       let toDiv = document.getElementById('fixedBehavior');
       this.setState({ showAlertMessage: true, typeMessage: resolveResponse.success, messageAlert: resolveResponse.message })
@@ -104,7 +115,7 @@ class FirstAccess extends Component {
   callbackClientUpdate = async (response) => {
     let resolveResponse = await Promise.resolve(response)
     if(resolveResponse.success) {
-      history.push('/')
+      this.props.history.push('/')
     } else {
       let toDiv = document.getElementById('fixedBehavior');
       this.setState({ showAlertMessage: true, typeMessage: resolveResponse.success, messageAlert: resolveResponse.message })
@@ -128,7 +139,6 @@ class FirstAccess extends Component {
         complement: '',
         neighbourhood: res.address.bairro,
         state: res.address.uf,
-        type: '',
         city: res.address.localidade,
       }
     } else {
@@ -142,7 +152,6 @@ class FirstAccess extends Component {
         complement: '',
         neighbourhood: '',
         state: '',
-        type: '',
         city: '',
         AddressError: resolveResponse.message
       }
@@ -151,20 +160,20 @@ class FirstAccess extends Component {
         10000
       );
     }
-    dispatch(setFirtAcessHelpers.handleInput(Address, "Address"))
+    dispatch(setOngsHelpers.handleInput(Address, "Address"))
   }
 
   render() {
-    const { ClientReducer, InfosReducer } = this.props
-    const { createClientReducer } = ClientReducer
+    const { OngReducer, InfosReducer } = this.props
+    const { createOngReducer } = OngReducer
     const { createInfosReducer = {} } = InfosReducer
-    const { client } = createClientReducer
-    const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender } = client
+    const { ongs } = createOngReducer
+    const { name, email, identificationNumber,dateOfBirth, phone, Address, howManyAdopted, password } = ongs
     const { cellPhone, homePhone } = phone
-    const { zipcode, street, number, complement, state, type, city, neighbourhood, AddressError } = Address
-    const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formUpdateClient } = this.state
+    const { zipcode, street, number, complement, state, city, neighbourhood, AddressError } = Address
+    const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formCreatOng, confirmPassword, validPass, iqualPassword } = this.state
   
-    if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('10 ou mais')) howManyAdoptedList.push('10 ou mais')
+    if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('200 ou mais')) howManyAdoptedList.push('200 ou mais')
     return (
       <React.Fragment>
         {showAlertMessage && 
@@ -172,150 +181,120 @@ class FirstAccess extends Component {
         <Container className="first-access">
           <Row className="justify-content-md-center mt-6">
             <Col xs={12}>
-              <h4 className="text-uppercase text-center pt-1 pb-4">Finalize o seu cadastro para a gente te conhecer melhor</h4>
+              <h4 className="text-uppercase text-center pt-1 pb-4">Faça seu cadastro como ONG</h4>
             </Col>
 
             <Col xs={12}>
               <Card>
-                <Card.Header>Cliente</Card.Header>
+                <Card.Header>ONG</Card.Header>
                 <Card.Body>
                   <Card.Text>
                   <Form inline onSubmit={(e) => this.handleIncludeClient(e)} className="justify-content-center" >
                     <Form.Row>
                       <MaterialInput
                         type="text"
-                        containerClass="col-12 col-md-4"
+                        containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         label='Nome'
                         placeholder="Nome Completo"
                         name="name"
                         id="name"
                         value={name}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "name")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "name")}
                         optionValue="value"
                         optionText="label"
                         minlength="4"
-                        disabled={name}
-                        // errorMsg='Insira o nome copleto'
-                        // error={formUpdateClient && (!name || !validName || !nameHasNotAllowedWord)} 
+                        errorMsg='Insira o nome copleto'
+                        error={formCreatOng && (!name || !helpers.validateFullName(name) || !wordIsAllowed(name))} 
                         />
                       <MaterialInput
                         type="text"
-                        containerClass="col-12 col-md-4"
+                        containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         label='Email'
                         placeholder="Email"
                         name="email"
                         id="email"
                         value={email}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "email")}
-                        disabled={email}
-                        // errorMsg='Insira um email valido'
-                        // error={formUpdateClient && (!email || !validEmail || !emailHasNotAllowedWord)} 
+                        onChange={(event) => setOngsHelpers.handleInput(event, "email")}
+                        errorMsg='Insira um email valido'
+                        error={formCreatOng && (!email || !helpers.validateEmail(email) || !wordIsAllowed(email))} 
                       />
+                    </Form.Row>
+                    <Form.Row className="mt-3">
                       <CustomInputMask
-                        containerClass="col-12 col-md-4"
+                        containerClass="col-12 col-md-6"
                         inputClass="form-control"
-                        mask={"999.999.999-99"}
-                        label={"CPF*"}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
+                        mask={"99.999.999/9999-99"}
+                        label={"CNPJ*"}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "identificationNumber")}
                         name="identificationNumber"
                         value={identificationNumber}
                         // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
-                        errorMsg={'Informe um CPF válido'}
-                        error={formUpdateClient && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
+                        errorMsg={'Informe um CNPJ válido'}
+                        error={formCreatOng && (!identificationNumber || !helpers.validateCNPJ(identificationNumber))}
                       />
-                    </Form.Row>
-                    <Form.Row>
                       <CustomInputMask
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         mask="99/99/9999"
-                        label="Data de nascimento*"
+                        label="Data de Criação*"
                         name="dateOfBirth"
                         value={dateOfBirth}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "dateOfBirth")}
-                        error={formUpdateClient && (!dateOfBirth || !helpers.dateCompare(dateOfBirth))}
-                        errorMsg={!dateOfBirth ? "Informe a data de nascimento" : !helpers.dateCompare(dateOfBirth) ? "Informe uma data válida" : "Informe a data de nascimento"}
-                      />
-                      <MaterialInput
-                        type="select"
-                        containerClass="col-12 col-md-6"
-                        inputClass="custom-select"
-                        label="Sexo*"
-                        name="gender"
-                        optionValue="id"
-                        optionText="name"
-                        value={gender}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", createInfosReducer.genderList.find(item => item.id === Number(event.target.value)))}
-                        list={createInfosReducer.genderList && createInfosReducer.genderList}
-                        error={formUpdateClient && !gender}
-                        errorMsg="Informe o sexo"
+                        onChange={(event) => setOngsHelpers.handleInput(event, "dateOfBirth")}
+                        error={formCreatOng && (!dateOfBirth || !helpers.dateCompare(dateOfBirth))}
+                        errorMsg={!dateOfBirth ? "Informe a data de Criação" : !helpers.dateCompare(dateOfBirth) ? "Informe uma data válida" : "Informe a data de Criação"}
                       />
                     </Form.Row>
-                    <Form.Row>
+                    <Form.Row className="mt-3">
                       <CustomInputMask
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         mask="(99) 9999-9999"
-                        label="Telefone Casa"
+                        label="Telefone Escritório"
                         name="homePhone"
                         value={homePhone}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "homePhone")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "homePhone")}
                       />
                       <CustomInputMask
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         mask="(99) 99999-9999"
-                        label="Telefone Celular*"
+                        label="Telefone Celular* (WhatsApp)"
                         name="cellPhone"
                         value={cellPhone}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "cellPhone")}
-                        error={formUpdateClient && (!cellPhone || !helpers.validatePhone(helpers.phoneMask(cellPhone), true))}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "cellPhone")}
+                        error={formCreatOng && (!cellPhone || !helpers.validatePhone(helpers.phoneMask(cellPhone), true))}
                         errorMsg={"Informe um telefone celular válido"}
                       />
                     </Form.Row>
-                    <Form.Row>
+                    <Form.Row className="mt-3">
                       <CustomInputMask
                         containerClass="col-12 col-md-4"
                         inputClass="form-control"
                         mask="99999-999"
                         label={"CEP*"}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "zipcode",'', this.setCallbackaddress)}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "zipcode",'', this.setCallbackaddress)}
                         name="zipcode"
                         value={zipcode}
                         errorMsg={'Informe um cep válido'}
-                        error={ (formUpdateClient && (!zipcode || zipcode.indexOf("_") >= 0)) || AddressError}
+                        error={ (formCreatOng && (!zipcode || zipcode.indexOf("_") >= 0)) || AddressError}
                       />
                               
                       <MaterialInput
-                        containerClass="col-12 col-md-4"
+                        containerClass="col-12 col-md-8"
                         inputClass="form-control"
                         type="text"
                         label="Endereço*"
                         disabled={true}
                         name="street"
                         value={street}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "street")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "street")}
                         errorMsg={"Informe o endereço"}
-                        error={formUpdateClient && (!street)}
-                      />
-                      <MaterialInput
-                        type="select"
-                        containerClass="col-12 col-md-4"
-                        inputClass="custom-select"
-                        label="Tipo*"
-                        name="type"
-                        value={type}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
-                        list={createInfosReducer.typesHouseList && createInfosReducer.typesHouseList}
-                        optionValue="id"
-                        optionText="name"
-                        errorMsg={"Informe o tipo"}
-                        error={formUpdateClient && !type}
+                        error={formCreatOng && (!street)}
                       />
                     </Form.Row>
-                    <Form.Row>
+                    <Form.Row className="mt-3">
                       <MaterialInput
                         containerClass="col-12 col-md-4"
                         inputClass="form-control"
@@ -323,9 +302,9 @@ class FirstAccess extends Component {
                         label="Número*"
                         name="number"
                         value={number}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "number")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "number")}
                         errorMsg={"Informe o número"}
-                        error={formUpdateClient && !number}
+                        error={formCreatOng && !number}
                         maxlength="10"
                       />
                       <MaterialInput
@@ -336,9 +315,9 @@ class FirstAccess extends Component {
                         label="Bairro*"
                         name="neighbourhood"
                         value={neighbourhood}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "neighbourhood")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "neighbourhood")}
                         errorMsg={"Informe o Bairro"}
-                        error={formUpdateClient && (!neighbourhood)}
+                        error={formCreatOng && (!neighbourhood)}
                         // maxlength="60"
                       />
                       <MaterialInput
@@ -349,63 +328,84 @@ class FirstAccess extends Component {
                         label="Estado*"
                         name="state"
                         value={state}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "state")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "state")}
                         errorMsg={"Informe o estado"}
-                        error={formUpdateClient && !state }
+                        error={formCreatOng && !state }
                       />
                     </Form.Row>
-                    <Form.Row>
+                    <Form.Row className="mt-3">
                       <MaterialInput
                         type="text"
-                        containerClass="col-12 col-md-3"
+                        containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         label="Cidade*"
                         name="city"
                         disabled={true}
                         value={city}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "city")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "city")}
                         errorMsg={"Informe a cidade"}
-                        error={formUpdateClient && !city}
+                        error={formCreatOng && !city}
                       />
                       <MaterialInput
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
                         type="text"
-                        label={type === 2 ? "Complemento*" : "Complemento"}
+                        label="Complemento"
                         name="complement"
                         value={complement}
-                        errorMsg={"Informe o complemento"}
-                        error={formUpdateClient && type === 2 && !complement}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "complement")}
+                        onChange={(event) => setOngsHelpers.handleInput(event, "complement")}
                         maxlength="25"
                       />
                     </Form.Row>
-                    <Form.Row>
-                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex justify-content-center align-items-center">
-                        <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!isOng, "isOng")} checked={isOng} />
-                        <label className="pl-2 text">Você faz parte de alguma ong de adoção?</label>
-                      </div>
-                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex  flex-column">
-                        <Form.Row className="justify-content-center align-items-center">
-                          <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!alreadyAdopted, "alreadyAdopted")} checked={alreadyAdopted} />
-                          <label className="pl-2 text">Você possui pets adotados?</label>
+                    <Form.Row className="mt-3">
+                      <MaterialInput
+                        type="password"
+                        containerClass="form-group col-12 col-md-6"
+                        inputClass="form-control"
+                        label='Senha'
+                        placeholder="Senha"
+                        name="password"
+                        id="password"
+                        value={password}
+                        onChange={(event) => this.handleChangeInput(event, "password")}
+                        optionValue="value"
+                        optionText="label"
+                        errorMsg={(!iqualPassword && confirmPassword) ? `As senhas não conferem` : !validPass ? 'A senha deve conter ao menos: 1 caracter especial, 1 letra maiuscula, 1 minuscula e 1 numero' : `Insira a sua senha`}
+                        error={formCreatOng && (!password || !iqualPassword || !validPass)}
+                      />
+
+                      <MaterialInput
+                        type="password"
+                        containerClass="form-group col-12 col-md-6"
+                        inputClass="form-control"
+                        label='Confirmar Senha'
+                        placeholder="Confirmar Senha"
+                        name="confirmPassword"
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(event) => this.handleChangeInput(event, "confirmPassword")}
+                        optionValue="value"
+                        optionText="label"
+                        errorMsg={(!iqualPassword && confirmPassword) ? `As senhas não conferem` : `Insira a sua confirmação de senha`}
+                        error={formCreatOng && (!confirmPassword || !iqualPassword)}
+                      />
+                    </Form.Row>
+                    <Form.Row className="mt-3 justify-content-center">
+                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex flex-column">
+                        <Form.Row>
+                          <MaterialInput
+                            type="select"
+                            containerClass="col-12 col-md-12"
+                            inputClass="custom-select"
+                            label="Quantos animais tem para adoção?*"
+                            name="howManyAdopted"
+                            value={howManyAdopted}
+                            onChange={(event) => setOngsHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
+                            list={howManyAdoptedList}
+                            errorMsg={"Informe o tipo"}
+                            error={formCreatOng &&  !howManyAdopted}
+                          />
                         </Form.Row>
-                        {alreadyAdopted && 
-                          <Form.Row className="mt-3">
-                            <MaterialInput
-                              type="select"
-                              containerClass="col-12 col-md-12"
-                              inputClass="custom-select"
-                              label="Quantos animais tem adotado?*"
-                              name="howManyAdopted"
-                              value={howManyAdopted}
-                              onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
-                              list={howManyAdoptedList}
-                              errorMsg={"Informe o tipo"}
-                              error={formUpdateClient &&  !howManyAdopted}
-                            />
-                          </Form.Row>
-                        }
                       </div>
                     </Form.Row>
                     <div className="col-12 text-center">
@@ -426,12 +426,11 @@ class FirstAccess extends Component {
 }
 
 const mapStateToProps = state => {
-  const { ClientReducer, InfosReducer, LoginReducer } = state;
+  const { OngReducer, InfosReducer } = state;
   return {
-    ClientReducer,
     InfosReducer,
-    LoginReducer
+    OngReducer
   }
 };
 
-export default connect(mapStateToProps)(FirstAccess);
+export default connect(mapStateToProps)(OngCreat);

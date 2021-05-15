@@ -160,7 +160,7 @@ class LoginPage extends Component {
     let resolveResponse = await Promise.resolve(response)
     if(resolveResponse.success) {
       if(resolveResponse.data.finalizeRegistration) this.props.history.push('/first-access')
-      else this.props.history.push('/')
+      else this.props.history.push('/home')
     } else {
       let toDiv = document.getElementById('fixedBehavior');
       this.setState({ showAlertMessage: true, typeMessage: resolveResponse.success, messageAlert: resolveResponse.message })
@@ -215,17 +215,19 @@ class LoginPage extends Component {
                   errorMsg={(!passwordLogin) ? `Insira a sua senha` : ''}
                   error={formSendLogin && (!passwordLogin) } />
 
-                <Button variant="link">
-                  Esqueceu a senha?
-                </Button>
-                <Button variant="primary" type="submit">
-                  Entrar
-                </Button>
+                <div className="col-12 d-flex justify-content-around">
+                  <Button variant="link">
+                    Esqueceu a senha?
+                  </Button>
+                  <Button variant="primary" type="submit">
+                    Entrar
+                  </Button>
+                </div>
               </Form>
             </Col>
           </Row>
 
-          <Row className="justify-content-md-center mt-6">
+          <Row className="justify-content-md-center mt-6" data-aos="fade-up">
             <Col xs={12}>
               <h4 className="text-uppercase text-center pt-3 pb-2">Não tem Login?</h4>
               <h4 className="text-uppercase text-center pt-1 pb-4">Cadastre-se</h4>
@@ -292,9 +294,14 @@ class LoginPage extends Component {
                   optionText="label"
                   errorMsg={(!iqualPassword && confirmPassword) ? `As senhas não conferem` : `Insira a sua confirmação de senha`}
                   error={formCreatedClient && (!confirmPassword || !iqualPassword)} />
-                <Button variant="primary" type="submit">
-                  Cadastrar
-                </Button>
+                <div className="col-12 d-flex justify-content-around">
+                  <Button variant="primary" type="submit">
+                    Cadastrar
+                  </Button>
+                  <Button variant="success" onClick={() => this.props.history.push('/creat-ong')}>
+                    Cadastro como Ong?
+                  </Button>
+                </div>
               </Form>
             </Col>
           </Row>

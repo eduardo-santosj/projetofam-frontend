@@ -3,14 +3,9 @@ import { Store } from '../../store';
 import { setFirstAccessFields } from '../../types/firstAccess/setFirstAccessTypes';
 import { addressActions } from '../../actions/addressAction'
 
-export const setFirtAcessHelpers = {
-  handleInput,
-  validateFullName
-}
 
-function validateFullName(value) {
-  let validation = (/[a-zA-Z]{2,}\s+[a-zA-Z]/).test(value)
-  return validation
+export const setOngsHelpers = {
+  handleInput
 }
 
 function handleInput(myValue, target, findedItem, callback) {
@@ -25,26 +20,27 @@ function handleInput(myValue, target, findedItem, callback) {
     case 'isOng':
     case 'alreadyAdopted':
     case 'howManyAdopted':
-      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_CLIENT));
+    case 'password':
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_ONG));
     case 'gender':
       value = findedItem.id
-      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_CLIENT));
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_INPUT_ONG));
     // Phone
     case 'homePhone':
     case 'cellPhone':
       formatted = value.replace(/[^A-Z0-9]/ig,'');
-      return Store.dispatch(saveStore(formatted, target, setFirstAccessFields.HANDLE_PHONE_CLIENT))
+      return Store.dispatch(saveStore(formatted, target, setFirstAccessFields.HANDLE_PHONE_ONG))
     // Address
-    case 'CEP':
+    case 'zipcode':
       formatted = value.replace(/[^A-Z0-9]+/ig, "");
       if(formatted.length === 8) Store.dispatch(addressActions.getaddress(formatted, callback))
-      return Store.dispatch(saveStore(formatted, target, setFirstAccessFields.HANDLE_ADRESS_CLIENT));
+      return Store.dispatch(saveStore(formatted, target, setFirstAccessFields.HANDLE_ADRESS_ONG));
     case 'type':
       value = findedItem.id
-      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_ADRESS_CLIENT));
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_ADRESS_ONG));
     case 'number':
     case 'complement':
-      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_ADRESS_CLIENT));
+      return Store.dispatch(saveStore(value, target, setFirstAccessFields.HANDLE_ADRESS_ONG));
     default:
       return
   }

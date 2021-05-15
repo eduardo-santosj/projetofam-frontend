@@ -11,7 +11,7 @@ class HomePage extends Component {
     render() {
         return (
             <React.Fragment>
-                <Image src="http://via.placeholder.com/2400x1080" fluid />
+                <Image src="https://image-sos.s3.amazonaws.com/7e0882d4d63e5ef7612802158c805a3b-imagem-grande-3.jpg" fluid className="img-header"/>
                 <Container>
                     <Row>
                         <Col xs={12}>

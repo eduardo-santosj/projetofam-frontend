@@ -30,19 +30,19 @@ class MaterialInput extends Component {
 	handleType() {
 		const { type, inputClass, name, list, value, onChange, optionValue, optionText, error, disabled, template, placeholder, hiddenPlaceholder = false, optionLabel, maxlength, minlength } = this.props;
         if (type === "select") {
-            return (
-                <select className={inputClass + (error ? " is-invalid" : "")} name={name} value={value ? value : ""} onChange={onChange} onFocus={this.onFocus} onBlur={this.onBlur} disabled={disabled}>
-                    {(!value || (list && list.loading)) &&
-                        <option selected hidden={hiddenPlaceholder} value={placeholder}>{placeholder}</option>
-                    }
-                    {typeof list === "function" &&
-                        list()
-                    }
-                    {typeof list === "object" && list.map((item, index) =>
-                        <option key={index} value={optionValue ? item[optionValue] : item}>{optionText ? item[optionText] : item}</option>
-                    )}
-                </select>
-            )
+					return (
+							<select className={inputClass + (error ? " is-invalid" : "")} name={name} value={value ? value : ""} onChange={onChange} onFocus={this.onFocus} onBlur={this.onBlur} disabled={disabled}>
+									{(!value || (list && list.loading)) &&
+											<option selected hidden={hiddenPlaceholder} value={placeholder}>{placeholder}</option>
+									}
+									{typeof list === "function" &&
+											list()
+									}
+									{typeof list === "object" && list.map((item, index) =>
+											<option key={index} value={optionValue ? item[optionValue] : item}>{optionText ? item[optionText] : item}</option>
+									)}
+							</select>
+					)
         }
 
 		if (type === "text" || type === 'password') {

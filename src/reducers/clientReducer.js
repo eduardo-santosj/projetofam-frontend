@@ -17,7 +17,7 @@ const initialState = {
         homePhone: '',
       },
       Address: {
-        CEP: '',
+        zipcode: '',
         street: '',
         number: '',
         complement: '',
@@ -28,7 +28,11 @@ const initialState = {
       },
       isOng: false,
       alreadyAdopted: false,
-      howManyAdopted: ''
+      howManyAdopted: '',
+      typeAccess: ''
+    },
+    clientResponse: {
+
     },
     isLoading: false,
   }
@@ -44,12 +48,12 @@ export const ClientReducer = (state = initialState, action) => {
     case ClientActionTypes.CREATE_CLIENT_SUCCESS:
       return {
         ...state,
-        createClientReducer: {...state.createClientReducer, clients: action.response, isLoading: false },
+        createClientReducer: {...state.createClientReducer, clientResponse: action.response, isLoading: false },
       };
     case ClientActionTypes.CREATE_CLIENT_FAILURE:
       return {
         ...state,
-        createClientReducer: {...state.createClientReducer, clients: state.createClientReducer.clients, isLoading: false },
+        createClientReducer: {...state.createClientReducer, clientResponse: state.createClientReducer.clientResponse, isLoading: false },
       };
     
     case ClientActionTypes.GET_CLIENT_BY_ID_REQUEST:
