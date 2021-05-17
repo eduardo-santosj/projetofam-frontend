@@ -3,13 +3,15 @@ import thunk from "redux-thunk";
 
 //importRedux
 import { ClientReducer } from './reducers/clientReducer'
+import { FullReducer } from './reducers/fullReducer'
 import { LoginReducer } from './reducers/loginReducer'
 import { OngReducer } from './reducers/ongReducer'
 import { InfosReducer } from './reducers/helper/infosReducer'
 
 const Reducers = combineReducers({
   ClientReducer,
-  LoginReducer, 
+  FullReducer,
+  LoginReducer,
   OngReducer,
   InfosReducer
 })

@@ -8,7 +8,8 @@ import {
     Col,
     Form,
     Button,
-    Card
+    Card,
+    Table
 } from 'react-bootstrap'
 
 // Action
@@ -28,10 +29,11 @@ import { history } from "../helpers/history";
 
 class MySpace extends Component {
   constructor(props) {
-      super(props)
+    super(props)
       
-      this.state = {
-        showAlertMessage: false
+    this.state = {
+      showAlertMessage: false,
+      editform: false
     }
   }
 
@@ -46,7 +48,8 @@ class MySpace extends Component {
     dispatch(GenderActions.getGender())
     dispatch(TypesHouseActions.getTypesHouse())
     const userStorage = JSON.parse(localStorage.getItem("user"));
-    dispatch(clientActions.getClient(userStorage.data.email))
+    console.log(userStorage)
+    dispatch(clientActions.getFull(userStorage.data.email))
     this.setState({howManyAdoptedList: Array.from({length: 199}, (_, i) => i + 1)})
   }
 
@@ -159,15 +162,15 @@ class MySpace extends Component {
   }
 
   render() {
-    const { ClientReducer, InfosReducer } = this.props
-    const { createClientReducer } = ClientReducer
+    const { FullReducer, InfosReducer } = this.props
+    const { createFullReducer } = FullReducer
     const { createInfosReducer } = InfosReducer
     const { genders , typesHouses } = createInfosReducer
-    const { client } = createClientReducer
-    const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender } = client
+    const { full } = createFullReducer
+    const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender, typeAccess } = full
     const { cellPhone, homePhone } = phone
     const { zipcode, street, number, complement, state, type, city, neighbourhood, AddressError } = Address
-    const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formUpdateClient } = this.state
+    const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formUpdateClient, editform } = this.state
   
     if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('200 ou mais')) howManyAdoptedList.push('200 ou mais')
     return (
@@ -177,7 +180,7 @@ class MySpace extends Component {
         <Container className="first-access">
           <Row className="justify-content-md-center mt-6">
             <Col xs={12}>
-              <h4 className="text-uppercase text-center pt-1 pb-4">Finalize o seu cadastro para a gente te conhecer melhor</h4>
+              <h4 className="text-uppercase text-center pt-1 pb-4">Seu Perfil</h4>
             </Col>
 
             <Col xs={12}>
@@ -200,7 +203,7 @@ class MySpace extends Component {
                         optionValue="value"
                         optionText="label"
                         minlength="4"
-                        disabled={name}
+                        disabled={!editform}
                         // errorMsg='Insira o nome copleto'
                         // error={formUpdateClient && (!name || !validName || !nameHasNotAllowedWord)} 
                         />
@@ -214,24 +217,43 @@ class MySpace extends Component {
                         id="email"
                         value={email}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "email")}
-                        disabled={email}
+                        disabled={!editform}
                         // errorMsg='Insira um email valido'
                         // error={formUpdateClient && (!email || !validEmail || !emailHasNotAllowedWord)} 
                       />
-                      <CustomInputMask
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        mask={"999.999.999-99"}
-                        label={"CPF*"}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
-                        name="identificationNumber"
-                        value={identificationNumber}
-                        // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
-                        errorMsg={'Informe um CPF válido'}
-                        error={formUpdateClient && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
-                      />
+                      {typeAccess === "CLIENT" &&
+                        <CustomInputMask
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          mask={"999.999.999-99"}
+                          label={"CPF*"}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
+                          name="identificationNumber"
+                          value={identificationNumber}
+                          disabled={!editform}
+                          // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
+                          errorMsg={'Informe um CPF válido'}
+                          error={formUpdateClient && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
+                        />
+                      }
+                      
                     </Form.Row>
                     <Form.Row>
+                      {typeAccess === "ONG" &&
+                        <CustomInputMask
+                          containerClass="col-12 col-md-6"
+                          inputClass="form-control"
+                          mask={"99.999.999/9999-99"}
+                          label={"CNPJ*"}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
+                          name="identificationNumber"
+                          value={identificationNumber}
+                          disabled={!editform}
+                          // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
+                          errorMsg={'Informe um CNPJ válido'}
+                          error={formUpdateClient && (!identificationNumber || !helpers.validateCNPJ(identificationNumber))}
+                        />
+                      }
                       <CustomInputMask
                         containerClass="col-12 col-md-6"
                         inputClass="form-control"
@@ -240,24 +262,27 @@ class MySpace extends Component {
                         name="dateOfBirth"
                         value={dateOfBirth}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "dateOfBirth")}
+                        disabled={!editform}
                         error={formUpdateClient && (!dateOfBirth || !helpers.dateCompare(dateOfBirth))}
                         errorMsg={!dateOfBirth ? "Informe a data de nascimento" : !helpers.dateCompare(dateOfBirth) ? "Informe uma data válida" : "Informe a data de nascimento"}
                       />
-                      <MaterialInput
-                        type="select"
-                        containerClass="col-12 col-md-6"
-                        inputClass="custom-select"
-                        label="Sexo*"
-                        name="gender"
-                        optionValue="id"
-                        optionText="name"
-                        value={gender}
-                        disabled={genders && genders.loading}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", genders.genderList.find(item => item.id === Number(event.target.value)))}
-                        list={genders && genders.genderList}
-                        error={formUpdateClient && !gender}
-                        errorMsg="Informe o sexo"
-                      />
+                      {typeAccess === "CLIENT" &&
+                        <MaterialInput
+                          type="select"
+                          containerClass="col-12 col-md-6"
+                          inputClass="custom-select"
+                          label="Sexo*"
+                          name="gender"
+                          optionValue="id"
+                          optionText="name"
+                          value={gender}
+                          disabled={genders && genders.loading || !editform}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", genders.genderList.find(item => item.id === Number(event.target.value)))}
+                          list={genders && genders.genderList}
+                          error={formUpdateClient && !gender}
+                          errorMsg="Informe o sexo"
+                        />
+                      }
                     </Form.Row>
                     <Form.Row>
                       <CustomInputMask
@@ -267,6 +292,7 @@ class MySpace extends Component {
                         label="Telefone Casa"
                         name="homePhone"
                         value={homePhone}
+                        disabled={!editform}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "homePhone")}
                       />
                       <CustomInputMask
@@ -276,6 +302,7 @@ class MySpace extends Component {
                         label="Telefone Celular*"
                         name="cellPhone"
                         value={cellPhone}
+                        disabled={!editform}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "cellPhone")}
                         error={formUpdateClient && (!cellPhone || !helpers.validatePhone(helpers.phoneMask(cellPhone), true))}
                         errorMsg={"Informe um telefone celular válido"}
@@ -289,6 +316,7 @@ class MySpace extends Component {
                         label={"CEP*"}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "zipcode",'', this.setCallbackaddress)}
                         name="zipcode"
+                        disabled={!editform}
                         value={zipcode}
                         errorMsg={'Informe um cep válido'}
                         error={ (formUpdateClient && (!zipcode || zipcode.indexOf("_") >= 0)) || AddressError}
@@ -301,26 +329,28 @@ class MySpace extends Component {
                         label="Endereço*"
                         disabled={true}
                         name="street"
-                        value={street}
+                        disabled={!editform}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "street")}
                         errorMsg={"Informe o endereço"}
                         error={formUpdateClient && (!street)}
                       />
-                      <MaterialInput
-                        type="select"
-                        containerClass="col-12 col-md-4"
-                        inputClass="custom-select"
-                        label="Tipo*"
-                        name="type"
-                        disabled={typesHouses && typesHouses.loading}
-                        value={type}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
-                        list={typesHouses && typesHouses.typesHouseList}
-                        optionValue="id"
-                        optionText="name"
-                        errorMsg={"Informe o tipo"}
-                        error={formUpdateClient && !type}
-                      />
+                      {typeAccess === "CLIENT" &&
+                        <MaterialInput
+                          type="select"
+                          containerClass="col-12 col-md-4"
+                          inputClass="custom-select"
+                          label="Tipo*"
+                          name="type"
+                          disabled={typesHouses && typesHouses.loading || !editform}
+                          value={type}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
+                          list={typesHouses && typesHouses.typesHouseList}
+                          optionValue="id"
+                          optionText="name"
+                          errorMsg={"Informe o tipo"}
+                          error={formUpdateClient && !type}
+                        />
+                      }
                     </Form.Row>
                     <Form.Row>
                       <MaterialInput
@@ -330,6 +360,7 @@ class MySpace extends Component {
                         label="Número*"
                         name="number"
                         value={number}
+                        disabled={!editform}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "number")}
                         errorMsg={"Informe o número"}
                         error={formUpdateClient && !number}
@@ -381,23 +412,24 @@ class MySpace extends Component {
                         label={type === 2 ? "Complemento*" : "Complemento"}
                         name="complement"
                         value={complement}
+                        disabled={!editform}
                         errorMsg={"Informe o complemento"}
                         error={formUpdateClient && type === 2 && !complement}
                         onChange={(event) => setFirtAcessHelpers.handleInput(event, "complement")}
                         maxlength="25"
                       />
                     </Form.Row>
-                    <Form.Row>
-                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex justify-content-center align-items-center">
-                        <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!isOng, "isOng")} checked={isOng} />
-                        <label className="pl-2 text">Você faz parte de alguma ong de adoção?</label>
-                      </div>
-                      <div className="col-12 col-md-6 checkboxes mt-3 d-flex  flex-column">
-                        <Form.Row className="justify-content-center align-items-center">
-                          <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!alreadyAdopted, "alreadyAdopted")} checked={alreadyAdopted} />
-                          <label className="pl-2 text">Você possui pets adotados?</label>
-                        </Form.Row>
-                        {alreadyAdopted && 
+                    {typeAccess ==="CLIENT" ?
+                      <Form.Row>
+                        <div className="col-12 col-md-6 checkboxes mt-3 d-flex justify-content-center align-items-center">
+                          <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!isOng, "isOng")} disabled={!editform} checked={isOng} />
+                          <label className="pl-2 text">Você faz parte de alguma ong de adoção?</label>
+                        </div>
+                        <div className="col-12 col-md-6 checkboxes mt-3 d-flex  flex-column">
+                          <Form.Row className="justify-content-center align-items-center">
+                            <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!alreadyAdopted, "alreadyAdopted")} disabled={!editform} checked={alreadyAdopted} />
+                            <label className="pl-2 text">Você possui pets adotados?</label>
+                          </Form.Row>
                           <Form.Row className="mt-3">
                             <MaterialInput
                               type="select"
@@ -406,21 +438,69 @@ class MySpace extends Component {
                               label="Quantos animais tem adotado?*"
                               name="howManyAdopted"
                               value={howManyAdopted}
+                              disabled={!editform}
                               onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
                               list={howManyAdoptedList}
                               errorMsg={"Informe o tipo"}
                               error={formUpdateClient &&  !howManyAdopted}
                             />
                           </Form.Row>
-                        }
-                      </div>
-                    </Form.Row>
+                        </div>
+                      </Form.Row>
+                    :
+                      <Form.Row className="mt-3 justify-content-center">
+                        <div className="col-12 col-md-6 checkboxes mt-3 d-flex flex-column">
+                          <Form.Row>
+                            <MaterialInput
+                              type="select"
+                              containerClass="col-12 col-md-12"
+                              inputClass="custom-select"
+                              label="Quantos animais tem para adoção?*"
+                              name="howManyAdopted"
+                              value={howManyAdopted}
+                              disabled={!editform}
+                              onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
+                              list={howManyAdoptedList}
+                              errorMsg={"Informe o tipo"}
+                              error={formUpdateClient &&  !howManyAdopted}
+                            />
+                          </Form.Row>
+                        </div>
+                      </Form.Row>
+                    }
                     <div className="col-12 text-center">
                       <Button variant="primary" type="submit" className="mt-3">
-                        Cadastrar
+                        Editar
                       </Button>
                     </div>
                   </Form>
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={12} className="pt-3 mt-3">
+              <Card>
+                <Card.Header>Pets Cadastrados</Card.Header>
+                <Card.Body>
+                  <Card.Text>
+                    <Table striped bordered hover>
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>First Name</th>
+                          <th>Last Name</th>
+                          <th>Username</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>1</td>
+                          <td>Mark</td>
+                          <td>Otto</td>
+                          <td>@mdo</td>
+                        </tr>
+                      </tbody>
+                    </Table>
                   </Card.Text>
                 </Card.Body>
               </Card>
@@ -433,9 +513,9 @@ class MySpace extends Component {
 }
 
 const mapStateToProps = state => {
-  const { ClientReducer, InfosReducer, LoginReducer } = state;
+  const { FullReducer, InfosReducer, LoginReducer } = state;
   return {
-    ClientReducer,
+    FullReducer,
     InfosReducer,
     LoginReducer
   }

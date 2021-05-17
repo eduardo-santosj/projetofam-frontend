@@ -7,7 +7,8 @@ export const clientActions = {
   createClient,
 	updateClient,
 	updatePreClient,
-	getClient
+	getClient,
+	getFull
 };
 
 function createClient(params, callback) {
@@ -116,4 +117,31 @@ function getClient(params, callback) {
 	function request() { return { type: ClientActionTypes.GET_CLIENT_BY_ID_REQUEST } }
 	function success(response) { return { type: ClientActionTypes.GET_CLIENT_BY_ID_SUCCESS, response } }
 	function failure(error) { return { type: ClientActionTypes.GET_CLIENT_BY_ID_FAILURE, error } }
+}
+
+function getFull(params, callback) {
+	return dispatch => {
+    dispatch(request());
+		return clientHandler.getFull(params)
+			.then(
+        response => {
+					dispatch(success(response));
+          if (callback) callback(response);
+          return response;
+				},
+        error => {
+          dispatch(failure(error));
+					if (callback) callback(error);
+          return false
+				}
+			).catch(error => {
+				dispatch(failure(error));
+				if (callback) callback(error);
+        return false;
+			});
+	};
+
+	function request() { return { type: ClientActionTypes.GET_FULL_BY_ID_REQUEST } }
+	function success(response) { return { type: ClientActionTypes.GET_FULL_BY_ID_SUCCESS, response } }
+	function failure(error) { return { type: ClientActionTypes.GET_FULL_BY_ID_FAILURE, error } }
 }

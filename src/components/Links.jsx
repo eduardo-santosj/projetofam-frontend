@@ -42,21 +42,13 @@ class Links extends Component {
                         Contato
                     </Link>
                 </Item>
-                <Item>
-                    <Link to="/clients/list" className="nav-link" onClick={this.handleclick}>
-                        Listar Clientes
-                    </Link>
-                </Item>
-                <Item>
-                    <Link to="/clients/create" className="nav-link" onClick={this.handleclick}>
-                        Criar Clientes
-                    </Link>
-                </Item>
-                <Item>
-                    <Link to="/my-space" className="nav-link" onClick={this.handleclick}>
-                        Meu Espaço
-                    </Link>
-                </Item>
+                {this.props.LoginReducer.LogginReducerParams.client.isLogged &&
+                    <Item>
+                        <Link to="/my-space" className="nav-link" onClick={this.handleclick}>
+                            Meu Espaço
+                        </Link>
+                    </Item>
+                }
                 {!this.props.LoginReducer.LogginReducerParams.client.isLogged && 
                     <Item>
                         <Link to="/login" className="nav-link" onClick={this.handleclick}>
