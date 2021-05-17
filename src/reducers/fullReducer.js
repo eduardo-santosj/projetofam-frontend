@@ -46,7 +46,6 @@ export const FullReducer = (state = initialState, action) => {
         createFullReducer: {...state.createFullReducer, full: state.createFullReducer.full, isLoading: true },
       };
     case ClientActionTypes.GET_FULL_BY_ID_SUCCESS:
-      debugger
       return {
         ...state,
         createFullReducer: {...state.createFullReducer, full: action.response.data, isLoading: false },
