@@ -17,11 +17,11 @@ class Links extends Component {
     render() {
         return (
             <React.Fragment>
-                <Item>
+                {/* <Item>
                     <Link to="/animals/list" className="nav-link" onClick={this.handleclick}>
                         Animais
                     </Link>
-                </Item>
+                </Item> */}
                 <Item>
                     <Link to="/about-adoption" className="nav-link" onClick={this.handleclick}>
                         Sobre Adoção
