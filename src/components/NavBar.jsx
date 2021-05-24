@@ -21,7 +21,7 @@ class NavBar extends Component {
     return (
       <Navbar collapseOnSelect expand="true" className="position-navbar">
         <div className="position-menu">
-          <Navbar.Brand href="/home">S.O.S. Pet</Navbar.Brand>  
+          <Navbar.Brand href="/">S.O.S. Pet</Navbar.Brand>  
           <Navbar.Toggle aria-controls="responsive-navbar-nav" id="button-open-menu" onClick={this.handleclick} />
           {/* <Nav className="ml-auto justify-content-end show-md" id="navMenu">
             <Links />
