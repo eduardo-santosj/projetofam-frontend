@@ -40,6 +40,9 @@ class OngCreat extends Component {
 
   componentDidMount() {
     this.setState({howManyAdoptedList: Array.from({length: 199}, (_, i) => i + 1)})
+
+    let toDiv = document.getElementById('fixedBehavior');
+    toDiv.scrollIntoView({ behavior: "smooth" });
   }
 
   handleChangeInput = (event, type) => {
@@ -184,7 +187,7 @@ class OngCreat extends Component {
               <h4 className="text-uppercase text-center pt-1 pb-4">Faça seu cadastro como ONG</h4>
             </Col>
 
-            <Col xs={12}>
+            <Col xs={12} data-aos="fade-up">
               <Card>
                 <Card.Header>ONG</Card.Header>
                 <Card.Body>

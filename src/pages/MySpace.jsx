@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { clientActions } from "../actions/clientAction"
+import { petActions } from "../actions/petAction"
 import { connect } from "react-redux";
 import moment from "moment-timezone";
 import {
@@ -42,15 +43,19 @@ class MySpace extends Component {
     dispatch(GenderActions.getGender())
     dispatch(TypesHouseActions.getTypesHouse())
   }
+  
 
   componentDidMount() {
     const { dispatch } = this.props
     dispatch(GenderActions.getGender())
     dispatch(TypesHouseActions.getTypesHouse())
     const userStorage = JSON.parse(localStorage.getItem("user"));
-    console.log(userStorage)
     dispatch(clientActions.getFull(userStorage.data.email))
-    this.setState({howManyAdoptedList: Array.from({length: 199}, (_, i) => i + 1)})
+    this.setState({howManyAdoptedList: Array.from({length: 199}, (_, i) => i + 1)}) 
+    dispatch(petActions.getPetUserId(userStorage.data.id))
+
+    let toDiv = document.getElementById('fixedBehavior');
+    toDiv.scrollIntoView({ behavior: "smooth" });
   }
 
   validateRequiredFields(fields) {
@@ -162,350 +167,362 @@ class MySpace extends Component {
   }
 
   render() {
-    const { FullReducer, InfosReducer } = this.props
+    const { FullReducer, InfosReducer, PetReducer } = this.props
     const { createFullReducer } = FullReducer
     const { createInfosReducer } = InfosReducer
     const { genders , typesHouses } = createInfosReducer
     const { full } = createFullReducer
+    const { createPetReducer } = PetReducer
+    const { petsResponse } = createPetReducer
     const { name, email, identificationNumber,dateOfBirth, phone, Address, isOng, alreadyAdopted, howManyAdopted, gender, typeAccess } = full
     const { cellPhone, homePhone } = phone
     const { zipcode, street, number, complement, state, type, city, neighbourhood, AddressError } = Address
     const { showAlertMessage = {}, typeMessage, messageAlert, howManyAdoptedList, formUpdateClient, editform } = this.state
+    let countPet = 0
   
     if(howManyAdoptedList && howManyAdoptedList.length > 0 && !howManyAdoptedList.includes('200 ou mais')) howManyAdoptedList.push('200 ou mais')
     return (
       <React.Fragment>
         {showAlertMessage && 
         <ShowAlert ref="child" type={typeMessage} show={showAlertMessage} message={messageAlert}/>}
-        <Container className="first-access">
-          <Row className="justify-content-md-center mt-6">
-            <Col xs={12}>
-              <h4 className="text-uppercase text-center pt-1 pb-4">Seu Perfil</h4>
-            </Col>
+        <Container className={`first-access ${createFullReducer.isLoading ? `text-center` : ''}`}>
+          {(createFullReducer.isLoading && PetReducer.isLoading) ? <i className="fa fa-spinner fa-pulse fa-3x fa-fw text-center" /> :
+            <Row className="justify-content-md-center mt-6">
+              <Col xs={12}>
+                <h4 className="text-uppercase text-center pt-1 pb-4">Seu Perfil</h4>
+              </Col>
 
-            <Col xs={12}>
-              <Card>
-                <Card.Header>Cliente</Card.Header>
-                <Card.Body>
-                  <Card.Text>
-                  <Form inline onSubmit={(e) => this.handleIncludeClient(e)} className="justify-content-center" >
-                    <Form.Row>
-                      <MaterialInput
-                        type="text"
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        label='Nome'
-                        placeholder="Nome Completo"
-                        name="name"
-                        id="name"
-                        value={name}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "name")}
-                        optionValue="value"
-                        optionText="label"
-                        minlength="4"
-                        disabled={!editform}
-                        // errorMsg='Insira o nome copleto'
-                        // error={formUpdateClient && (!name || !validName || !nameHasNotAllowedWord)} 
-                        />
-                      <MaterialInput
-                        type="text"
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        label='Email'
-                        placeholder="Email"
-                        name="email"
-                        id="email"
-                        value={email}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "email")}
-                        disabled={!editform}
-                        // errorMsg='Insira um email valido'
-                        // error={formUpdateClient && (!email || !validEmail || !emailHasNotAllowedWord)} 
-                      />
-                      {typeAccess === "CLIENT" &&
-                        <CustomInputMask
-                          containerClass="col-12 col-md-4"
-                          inputClass="form-control"
-                          mask={"999.999.999-99"}
-                          label={"CPF*"}
-                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
-                          name="identificationNumber"
-                          value={identificationNumber}
-                          disabled={!editform}
-                          // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
-                          errorMsg={'Informe um CPF válido'}
-                          error={formUpdateClient && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
-                        />
-                      }
-                      
-                    </Form.Row>
-                    <Form.Row>
-                      {typeAccess === "ONG" &&
-                        <CustomInputMask
-                          containerClass="col-12 col-md-6"
-                          inputClass="form-control"
-                          mask={"99.999.999/9999-99"}
-                          label={"CNPJ*"}
-                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
-                          name="identificationNumber"
-                          value={identificationNumber}
-                          disabled={!editform}
-                          // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
-                          errorMsg={'Informe um CNPJ válido'}
-                          error={formUpdateClient && (!identificationNumber || !helpers.validateCNPJ(identificationNumber))}
-                        />
-                      }
-                      <CustomInputMask
-                        containerClass="col-12 col-md-6"
-                        inputClass="form-control"
-                        mask="99/99/9999"
-                        label="Data de nascimento*"
-                        name="dateOfBirth"
-                        value={dateOfBirth}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "dateOfBirth")}
-                        disabled={!editform}
-                        error={formUpdateClient && (!dateOfBirth || !helpers.dateCompare(dateOfBirth))}
-                        errorMsg={!dateOfBirth ? "Informe a data de nascimento" : !helpers.dateCompare(dateOfBirth) ? "Informe uma data válida" : "Informe a data de nascimento"}
-                      />
-                      {typeAccess === "CLIENT" &&
-                        <MaterialInput
-                          type="select"
-                          containerClass="col-12 col-md-6"
-                          inputClass="custom-select"
-                          label="Sexo*"
-                          name="gender"
-                          optionValue="id"
-                          optionText="name"
-                          value={gender}
-                          disabled={genders && genders.loading || !editform}
-                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", genders.genderList.find(item => item.id === Number(event.target.value)))}
-                          list={genders && genders.genderList}
-                          error={formUpdateClient && !gender}
-                          errorMsg="Informe o sexo"
-                        />
-                      }
-                    </Form.Row>
-                    <Form.Row>
-                      <CustomInputMask
-                        containerClass="col-12 col-md-6"
-                        inputClass="form-control"
-                        mask="(99) 9999-9999"
-                        label="Telefone Casa"
-                        name="homePhone"
-                        value={homePhone}
-                        disabled={!editform}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "homePhone")}
-                      />
-                      <CustomInputMask
-                        containerClass="col-12 col-md-6"
-                        inputClass="form-control"
-                        mask="(99) 99999-9999"
-                        label="Telefone Celular*"
-                        name="cellPhone"
-                        value={cellPhone}
-                        disabled={!editform}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "cellPhone")}
-                        error={formUpdateClient && (!cellPhone || !helpers.validatePhone(helpers.phoneMask(cellPhone), true))}
-                        errorMsg={"Informe um telefone celular válido"}
-                      />
-                    </Form.Row>
-                    <Form.Row>
-                      <CustomInputMask
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        mask="99999-999"
-                        label={"CEP*"}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "zipcode",'', this.setCallbackaddress)}
-                        name="zipcode"
-                        disabled={!editform}
-                        value={zipcode}
-                        errorMsg={'Informe um cep válido'}
-                        error={ (formUpdateClient && (!zipcode || zipcode.indexOf("_") >= 0)) || AddressError}
-                      />
-                              
-                      <MaterialInput
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        type="text"
-                        label="Endereço*"
-                        disabled={true}
-                        name="street"
-                        disabled={!editform}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "street")}
-                        errorMsg={"Informe o endereço"}
-                        error={formUpdateClient && (!street)}
-                      />
-                      {typeAccess === "CLIENT" &&
-                        <MaterialInput
-                          type="select"
-                          containerClass="col-12 col-md-4"
-                          inputClass="custom-select"
-                          label="Tipo*"
-                          name="type"
-                          disabled={typesHouses && typesHouses.loading || !editform}
-                          value={type}
-                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
-                          list={typesHouses && typesHouses.typesHouseList}
-                          optionValue="id"
-                          optionText="name"
-                          errorMsg={"Informe o tipo"}
-                          error={formUpdateClient && !type}
-                        />
-                      }
-                    </Form.Row>
-                    <Form.Row>
-                      <MaterialInput
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        type="text"
-                        label="Número*"
-                        name="number"
-                        value={number}
-                        disabled={!editform}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "number")}
-                        errorMsg={"Informe o número"}
-                        error={formUpdateClient && !number}
-                        maxlength="10"
-                      />
-                      <MaterialInput
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        type="text"
-                        disabled={true}
-                        label="Bairro*"
-                        name="neighbourhood"
-                        value={neighbourhood}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "neighbourhood")}
-                        errorMsg={"Informe o Bairro"}
-                        error={formUpdateClient && (!neighbourhood)}
-                        // maxlength="60"
-                      />
-                      <MaterialInput
-                        disabled={true}
-                        type="text"
-                        containerClass="col-12 col-md-4"
-                        inputClass="form-control"
-                        label="Estado*"
-                        name="state"
-                        value={state}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "state")}
-                        errorMsg={"Informe o estado"}
-                        error={formUpdateClient && !state }
-                      />
-                    </Form.Row>
-                    <Form.Row>
-                      <MaterialInput
-                        type="text"
-                        containerClass="col-12 col-md-3"
-                        inputClass="form-control"
-                        label="Cidade*"
-                        name="city"
-                        disabled={true}
-                        value={city}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "city")}
-                        errorMsg={"Informe a cidade"}
-                        error={formUpdateClient && !city}
-                      />
-                      <MaterialInput
-                        containerClass="col-12 col-md-6"
-                        inputClass="form-control"
-                        type="text"
-                        label={type === 2 ? "Complemento*" : "Complemento"}
-                        name="complement"
-                        value={complement}
-                        disabled={!editform}
-                        errorMsg={"Informe o complemento"}
-                        error={formUpdateClient && type === 2 && !complement}
-                        onChange={(event) => setFirtAcessHelpers.handleInput(event, "complement")}
-                        maxlength="25"
-                      />
-                    </Form.Row>
-                    {typeAccess ==="CLIENT" ?
+              <Col xs={12}>
+                <Card>
+                  <Card.Header>Cliente</Card.Header>
+                  <Card.Body>
+                    <Card.Text>
+                    <Form inline onSubmit={(e) => this.handleIncludeClient(e)} className="justify-content-center" >
                       <Form.Row>
-                        <div className="col-12 col-md-6 checkboxes mt-3 d-flex justify-content-center align-items-center">
-                          <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!isOng, "isOng")} disabled={!editform} checked={isOng} />
-                          <label className="pl-2 text">Você faz parte de alguma ong de adoção?</label>
-                        </div>
-                        <div className="col-12 col-md-6 checkboxes mt-3 d-flex  flex-column">
-                          <Form.Row className="justify-content-center align-items-center">
-                            <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!alreadyAdopted, "alreadyAdopted")} disabled={!editform} checked={alreadyAdopted} />
-                            <label className="pl-2 text">Você possui pets adotados?</label>
-                          </Form.Row>
-                          <Form.Row className="mt-3">
-                            <MaterialInput
-                              type="select"
-                              containerClass="col-12 col-md-12"
-                              inputClass="custom-select"
-                              label="Quantos animais tem adotado?*"
-                              name="howManyAdopted"
-                              value={howManyAdopted}
-                              disabled={!editform}
-                              onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
-                              list={howManyAdoptedList}
-                              errorMsg={"Informe o tipo"}
-                              error={formUpdateClient &&  !howManyAdopted}
-                            />
-                          </Form.Row>
-                        </div>
+                        <MaterialInput
+                          type="text"
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          label='Nome'
+                          placeholder="Nome Completo"
+                          name="name"
+                          id="name"
+                          value={name}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "name")}
+                          optionValue="value"
+                          optionText="label"
+                          minlength="4"
+                          disabled={!editform}
+                          // errorMsg='Insira o nome copleto'
+                          // error={formUpdateClient && (!name || !validName || !nameHasNotAllowedWord)} 
+                          />
+                        <MaterialInput
+                          type="text"
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          label='Email'
+                          placeholder="Email"
+                          name="email"
+                          id="email"
+                          value={email}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "email")}
+                          disabled={!editform}
+                          // errorMsg='Insira um email valido'
+                          // error={formUpdateClient && (!email || !validEmail || !emailHasNotAllowedWord)} 
+                        />
+                        {typeAccess === "CLIENT" &&
+                          <CustomInputMask
+                            containerClass="col-12 col-md-4"
+                            inputClass="form-control"
+                            mask={"999.999.999-99"}
+                            label={"CPF*"}
+                            onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
+                            name="identificationNumber"
+                            value={identificationNumber}
+                            disabled={!editform}
+                            // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
+                            errorMsg={'Informe um CPF válido'}
+                            error={formUpdateClient && (!identificationNumber || !helpers.validateCPF(identificationNumber))}
+                          />
+                        }
+                        
                       </Form.Row>
-                    :
-                      <Form.Row className="mt-3 justify-content-center">
-                        <div className="col-12 col-md-6 checkboxes mt-3 d-flex flex-column">
-                          <Form.Row>
-                            <MaterialInput
-                              type="select"
-                              containerClass="col-12 col-md-12"
-                              inputClass="custom-select"
-                              label="Quantos animais tem para adoção?*"
-                              name="howManyAdopted"
-                              value={howManyAdopted}
-                              disabled={!editform}
-                              onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
-                              list={howManyAdoptedList}
-                              errorMsg={"Informe o tipo"}
-                              error={formUpdateClient &&  !howManyAdopted}
-                            />
-                          </Form.Row>
-                        </div>
+                      <Form.Row>
+                        {typeAccess === "ONG" &&
+                          <CustomInputMask
+                            containerClass="col-12 col-md-6"
+                            inputClass="form-control"
+                            mask={"99.999.999/9999-99"}
+                            label={"CNPJ*"}
+                            onChange={(event) => setFirtAcessHelpers.handleInput(event, "identificationNumber")}
+                            name="identificationNumber"
+                            value={identificationNumber}
+                            disabled={!editform}
+                            // disabled={!client.personalInfoSaved || !isInserting || sendAdditionalDataToGtm || !dontSentToGtm || this.updateGTMData}
+                            errorMsg={'Informe um CNPJ válido'}
+                            error={formUpdateClient && (!identificationNumber || !helpers.validateCNPJ(identificationNumber))}
+                          />
+                        }
+                        <CustomInputMask
+                          containerClass="col-12 col-md-6"
+                          inputClass="form-control"
+                          mask="99/99/9999"
+                          label="Data de nascimento*"
+                          name="dateOfBirth"
+                          value={dateOfBirth}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "dateOfBirth")}
+                          disabled={!editform}
+                          error={formUpdateClient && (!dateOfBirth || !helpers.dateCompare(dateOfBirth))}
+                          errorMsg={!dateOfBirth ? "Informe a data de nascimento" : !helpers.dateCompare(dateOfBirth) ? "Informe uma data válida" : "Informe a data de nascimento"}
+                        />
+                        {typeAccess === "CLIENT" &&
+                          <MaterialInput
+                            type="select"
+                            containerClass="col-12 col-md-6"
+                            inputClass="custom-select"
+                            label="Sexo*"
+                            name="gender"
+                            optionValue="id"
+                            optionText="name"
+                            value={gender}
+                            disabled={genders && genders.loading || !editform}
+                            onChange={(event) => setFirtAcessHelpers.handleInput(event, "gender", genders.genderList.find(item => item.id === Number(event.target.value)))}
+                            list={genders && genders.genderList}
+                            error={formUpdateClient && !gender}
+                            errorMsg="Informe o sexo"
+                          />
+                        }
                       </Form.Row>
-                    }
-                    <div className="col-12 text-center">
-                      <Button variant="primary" type="submit" className="mt-3">
-                        Editar
-                      </Button>
-                    </div>
-                  </Form>
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col xs={12} className="pt-3 mt-3">
-              <Card>
-                <Card.Header>Pets Cadastrados</Card.Header>
-                <Card.Body>
-                  <Card.Text>
-                    <Table striped bordered hover>
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>First Name</th>
-                          <th>Last Name</th>
-                          <th>Username</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>1</td>
-                          <td>Mark</td>
-                          <td>Otto</td>
-                          <td>@mdo</td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+                      <Form.Row>
+                        <CustomInputMask
+                          containerClass="col-12 col-md-6"
+                          inputClass="form-control"
+                          mask="(99) 9999-9999"
+                          label="Telefone Casa"
+                          name="homePhone"
+                          value={homePhone}
+                          disabled={!editform}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "homePhone")}
+                        />
+                        <CustomInputMask
+                          containerClass="col-12 col-md-6"
+                          inputClass="form-control"
+                          mask="(99) 99999-9999"
+                          label="Telefone Celular*"
+                          name="cellPhone"
+                          value={cellPhone}
+                          disabled={!editform}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "cellPhone")}
+                          error={formUpdateClient && (!cellPhone || !helpers.validatePhone(helpers.phoneMask(cellPhone), true))}
+                          errorMsg={"Informe um telefone celular válido"}
+                        />
+                      </Form.Row>
+                      <Form.Row>
+                        <CustomInputMask
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          mask="99999-999"
+                          label={"CEP*"}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "zipcode",'', this.setCallbackaddress)}
+                          name="zipcode"
+                          disabled={!editform}
+                          value={zipcode}
+                          errorMsg={'Informe um cep válido'}
+                          error={ (formUpdateClient && (!zipcode || zipcode.indexOf("_") >= 0)) || AddressError}
+                        />
+                                
+                        <MaterialInput
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          type="text"
+                          label="Endereço*"
+                          value={street}
+                          name="street"
+                          disabled={!editform}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "street")}
+                          errorMsg={"Informe o endereço"}
+                          error={formUpdateClient && (!street)}
+                        />
+                        {typeAccess === "CLIENT" &&
+                          <MaterialInput
+                            type="select"
+                            containerClass="col-12 col-md-4"
+                            inputClass="custom-select"
+                            label="Tipo*"
+                            name="type"
+                            disabled={typesHouses && typesHouses.loading || !editform}
+                            value={type}
+                            onChange={(event) => setFirtAcessHelpers.handleInput(event, "type", createInfosReducer.typesHouseList.find(item => item.id === Number(event.target.value)))}
+                            list={typesHouses && typesHouses.typesHouseList}
+                            optionValue="id"
+                            optionText="name"
+                            errorMsg={"Informe o tipo"}
+                            error={formUpdateClient && !type}
+                          />
+                        }
+                      </Form.Row>
+                      <Form.Row>
+                        <MaterialInput
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          type="text"
+                          label="Número*"
+                          name="number"
+                          value={number}
+                          disabled={!editform}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "number")}
+                          errorMsg={"Informe o número"}
+                          error={formUpdateClient && !number}
+                          maxlength="10"
+                        />
+                        <MaterialInput
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          type="text"
+                          disabled={true}
+                          label="Bairro*"
+                          name="neighbourhood"
+                          value={neighbourhood}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "neighbourhood")}
+                          errorMsg={"Informe o Bairro"}
+                          error={formUpdateClient && (!neighbourhood)}
+                          // maxlength="60"
+                        />
+                        <MaterialInput
+                          disabled={true}
+                          type="text"
+                          containerClass="col-12 col-md-4"
+                          inputClass="form-control"
+                          label="Estado*"
+                          name="state"
+                          value={state}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "state")}
+                          errorMsg={"Informe o estado"}
+                          error={formUpdateClient && !state }
+                        />
+                      </Form.Row>
+                      <Form.Row>
+                        <MaterialInput
+                          type="text"
+                          containerClass="col-12 col-md-3"
+                          inputClass="form-control"
+                          label="Cidade*"
+                          name="city"
+                          disabled={true}
+                          value={city}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "city")}
+                          errorMsg={"Informe a cidade"}
+                          error={formUpdateClient && !city}
+                        />
+                        <MaterialInput
+                          containerClass="col-12 col-md-6"
+                          inputClass="form-control"
+                          type="text"
+                          label={type === 2 ? "Complemento*" : "Complemento"}
+                          name="complement"
+                          value={complement}
+                          disabled={!editform}
+                          errorMsg={"Informe o complemento"}
+                          error={formUpdateClient && type === 2 && !complement}
+                          onChange={(event) => setFirtAcessHelpers.handleInput(event, "complement")}
+                          maxlength="25"
+                        />
+                      </Form.Row>
+                      {typeAccess ==="CLIENT" ?
+                        <Form.Row>
+                          <div className="col-12 col-md-6 checkboxes mt-3 d-flex justify-content-center align-items-center">
+                            <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!isOng, "isOng")} disabled={!editform} checked={isOng} />
+                            <label className="pl-2 text">Você faz parte de alguma ong de adoção?</label>
+                          </div>
+                          <div className="col-12 col-md-6 checkboxes mt-3 d-flex  flex-column">
+                            <Form.Row className="justify-content-center align-items-center">
+                              <CustomCheckbox onClick={() => setFirtAcessHelpers.handleInput(!alreadyAdopted, "alreadyAdopted")} disabled={!editform} checked={alreadyAdopted} />
+                              <label className="pl-2 text">Você possui pets adotados?</label>
+                            </Form.Row>
+                            <Form.Row className="mt-3">
+                              <MaterialInput
+                                type="select"
+                                containerClass="col-12 col-md-12"
+                                inputClass="custom-select"
+                                label="Quantos animais tem adotado?*"
+                                name="howManyAdopted"
+                                value={howManyAdopted}
+                                disabled={!editform}
+                                onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
+                                list={howManyAdoptedList}
+                                errorMsg={"Informe o tipo"}
+                                error={formUpdateClient &&  !howManyAdopted}
+                              />
+                            </Form.Row>
+                          </div>
+                        </Form.Row>
+                      :
+                        <Form.Row className="mt-3 justify-content-center">
+                          <div className="col-12 col-md-6 checkboxes mt-3 d-flex flex-column">
+                            <Form.Row>
+                              <MaterialInput
+                                type="select"
+                                containerClass="col-12 col-md-12"
+                                inputClass="custom-select"
+                                label="Quantos animais tem para adoção?*"
+                                name="howManyAdopted"
+                                value={howManyAdopted}
+                                disabled={!editform}
+                                onChange={(event) => setFirtAcessHelpers.handleInput(event, "howManyAdopted", howManyAdoptedList.find(item => item === Number(event.target.value)))}
+                                list={howManyAdoptedList}
+                                errorMsg={"Informe o tipo"}
+                                error={formUpdateClient &&  !howManyAdopted}
+                              />
+                            </Form.Row>
+                          </div>
+                        </Form.Row>
+                      }
+                      <div className="col-12 text-center">
+                        <Button variant="primary" type="submit" className="mt-3">
+                          Editar
+                        </Button>
+                      </div>
+                    </Form>
+                    </Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col xs={12} className="pt-3 mt-3">
+                <Card>
+                  <Card.Header>Pets Cadastrados</Card.Header>
+                  <Card.Body>
+                    <Card.Text>
+                      <Table striped bordered hover responsive>
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Raça</th>
+                            <th>Idade</th>
+                            <th>Sexo</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                          {petsResponse.data && petsResponse.data.map(pet =>
+                            <tr>
+                              <td>{countPet=+1}</td>
+                              <td>{pet.name}</td>
+                              <td>{pet.type==='Dog' ? 'Cachorro' : 'Gato'}</td>
+                              <td>{pet.breed}</td>
+                              <td>{pet.old}</td>
+                              <td>{pet.gender==='Male' ? 'Macho' : 'Fêmea'}</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </Table>
+                    </Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          }
         </Container>
       </React.Fragment>
     )
@@ -513,11 +530,12 @@ class MySpace extends Component {
 }
 
 const mapStateToProps = state => {
-  const { FullReducer, InfosReducer, LoginReducer } = state;
+  const { FullReducer, InfosReducer, LoginReducer, PetReducer } = state;
   return {
     FullReducer,
     InfosReducer,
-    LoginReducer
+    LoginReducer,
+    PetReducer
   }
 };
 

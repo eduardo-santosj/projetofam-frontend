@@ -4,7 +4,7 @@ import { PrivateRouter } from '../components/privateRouter'
 
 
 import { NavBar, Footer } from '../components'
-import { HomePage, ClientsList, ClientsInsert, ClientsUpdate, LoginPage, WhoAre, FirstAccess, OngCreate, MySpace } from '../pages'
+import { HomePage, ClientsList, ClientsInsert, ClientsUpdate, LoginPage, WhoAre, FirstAccess, OngCreate, MySpace, CreatePet, ViewPet, AboutAdoption, Contact } from '../pages'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -28,9 +28,13 @@ function App() {
                     <Route path="/clients/create" exact component={ClientsInsert} />
                     <Route path="/login" exact component={LoginPage}/>
                     <Route path="/who-are" exact component={WhoAre}/>
+                    <Route path="/about-adoption" exact component={AboutAdoption}/>
+                    <Route path="/contact" exact component={Contact}/>
                     <PrivateRouter path="/first-access" exact component={FirstAccess}/>
                     <PrivateRouter path="/my-space" exact component={MySpace}/>
                     <Route path="/creat-ong" exact component={OngCreate}/>
+                    <PrivateRouter path="/creat-pet" exact component={CreatePet}/>
+                    <Route path="/view-pet/:id" exact component={ViewPet}/>
                     <Route
                         path="/clients/update/:id"
                         exact

@@ -7,5 +7,9 @@ import WhoAre from './whoAre'
 import FirstAccess from './FirstAccess'
 import OngCreate from './OngCreate'
 import MySpace from './MySpace'
+import CreatePet from './CreatePet'
+import ViewPet from './ViewPet'
+import AboutAdoption from './AboutAdoption'
+import Contact from './Contact'
 
-export { HomePage, ClientsList, ClientsInsert, ClientsUpdate, LoginPage, WhoAre, FirstAccess, OngCreate, MySpace }
+export { HomePage, ClientsList, ClientsInsert, ClientsUpdate, LoginPage, WhoAre, FirstAccess, OngCreate, MySpace, CreatePet, ViewPet, AboutAdoption, Contact }

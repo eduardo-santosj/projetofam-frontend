@@ -37,6 +37,9 @@ class FirstAccess extends Component {
     const { dispatch } = this.props
     await dispatch(GenderActions.getGender())
     await dispatch(TypesHouseActions.getTypesHouse())
+
+    let toDiv = document.getElementById('fixedBehavior');
+    toDiv.scrollIntoView({ behavior: "smooth" });
   }
 
   componentDidMount() {
@@ -176,7 +179,7 @@ class FirstAccess extends Component {
             </Col>
 
             <Col xs={12}>
-              <Card>
+              <Card data-aos="fade-up">
                 <Card.Header>Cliente</Card.Header>
                 <Card.Body>
                   <Card.Text>

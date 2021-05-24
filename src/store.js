@@ -7,12 +7,14 @@ import { FullReducer } from './reducers/fullReducer'
 import { LoginReducer } from './reducers/loginReducer'
 import { OngReducer } from './reducers/ongReducer'
 import { InfosReducer } from './reducers/helper/infosReducer'
+import { PetReducer } from './reducers/petReducer'
 
 const Reducers = combineReducers({
   ClientReducer,
   FullReducer,
   LoginReducer,
   OngReducer,
+  PetReducer,
   InfosReducer
 })
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

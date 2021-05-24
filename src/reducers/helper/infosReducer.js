@@ -11,6 +11,10 @@ const initialState = {
       loading: false,
       typesHouseList: []
     },
+    ImageListPet: {
+      loading: false,
+      imagePet: []
+    }
   }
 };
 
@@ -46,6 +50,22 @@ export const InfosReducer = (state = initialState, action) => {
       return {
         ...state,
         createInfosReducer: {...state.createInfosReducer, typesHouses: {...state.createInfosReducer.typesHouseList, loading: false } },
+      };
+
+    case TypesHouseActionTypes.GET_IMAGE_PET_REQUEST:
+      return {
+        ...state,
+        createInfosReducer: {...state.createInfosReducer, ImageListPet: {...state.createInfosReducer.ImageListPet, loading: true } },
+      };
+    case TypesHouseActionTypes.GET_IMAGE_PET_SUCCESS:
+      return {
+        ...state,
+        createInfosReducer: {...state.createInfosReducer, ImageListPet: { loading: false, ImageListPet: action.response.typesHouseList } },
+      };
+    case TypesHouseActionTypes.GET_IMAGE_PET_FAILURE:
+      return {
+        ...state,
+        createInfosReducer: {...state.createInfosReducer, ImageListPet: {...state.createInfosReducer.ImageListPet, loading: false } },
       };
     
     default:

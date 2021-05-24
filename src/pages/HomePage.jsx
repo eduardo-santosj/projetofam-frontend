@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux';
 import {
     Image,
     Row,
@@ -7,137 +8,38 @@ import {
     Media
 } from 'react-bootstrap'
 
+import { petActions } from '../actions/petAction'
+
+import ListPets from '../components/ListPets'
+
 class HomePage extends Component {
+    componentDidMount() {
+        const { dispatch } = this.props
+        dispatch(petActions.getPets())
+    
+        let toDiv = document.getElementById('fixedBehavior');
+        toDiv.scrollIntoView({ behavior: "smooth" });
+    }
+
+    checkPet = (pet) => {
+        console.log(this.props)
+        this.props.history.push(`/view-pet/${pet}`)
+    }
+
     render() {
+        const { PetReducer } = this.props
+        const { createPetReducer } = PetReducer
+        const { petsResponse } = createPetReducer
         return (
             <React.Fragment>
                 <Image src="https://image-sos.s3.amazonaws.com/7e0882d4d63e5ef7612802158c805a3b-imagem-grande-3.jpg" fluid className="img-header"/>
                 <Container>
                     <Row>
-                        <Col xs={12}>
+                        <Col xs={12} data-aos="fade-up">
                             <h4 className="text-uppercase text-center pt-3 pb-4">Animais para Adoção</h4>
                         </Col>
 
-                        <Col xs={12} md={6} lg={4}>
-                            <Media className="list-pet">
-                                <img
-                                width={64}
-                                height={64}
-                                className="mr-3"
-                                src="http://via.placeholder.com/64x64"
-                                alt="Generic placeholder"
-                                />
-                                <Media.Body>
-                                    <h5 className="text-center pt-2">Nome do Animal</h5>
-                                    <p className="text-justify pt-1">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque
-                                        ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at,
-                                        tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla.
-                                        Donec lacinia congue felis in faucibus.
-                                    </p>
-                                </Media.Body>
-                            </Media>
-                        </Col>
-                        <Col xs={12} md={6} lg={4}>
-                            <Media className="list-pet">
-                                <img
-                                width={64}
-                                height={64}
-                                className="mr-3"
-                                src="http://via.placeholder.com/64x64"
-                                alt="Generic placeholder"
-                                />
-                                <Media.Body>
-                                    <h5 className="text-center pt-2">Nome do Animal</h5>
-                                    <p className="text-justify pt-1">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque
-                                        ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at,
-                                        tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla.
-                                        Donec lacinia congue felis in faucibus.
-                                    </p>
-                                </Media.Body>
-                            </Media>
-                        </Col>
-                        <Col xs={12} md={6} lg={4}>
-                            <Media className="list-pet">
-                                <img
-                                width={64}
-                                height={64}
-                                className="mr-3"
-                                src="http://via.placeholder.com/64x64"
-                                alt="Generic placeholder"
-                                />
-                                <Media.Body>
-                                    <h5 className="text-center pt-2">Nome do Animal</h5>
-                                    <p className="text-justify pt-1">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque
-                                        ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at,
-                                        tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla.
-                                        Donec lacinia congue felis in faucibus.
-                                    </p>
-                                </Media.Body>
-                            </Media>
-                        </Col>
-                        <Col xs={12} md={6} lg={4}>
-                            <Media className="list-pet">
-                                <img
-                                width={64}
-                                height={64}
-                                className="mr-3"
-                                src="http://via.placeholder.com/64x64"
-                                alt="Generic placeholder"
-                                />
-                                <Media.Body>
-                                    <h5 className="text-center pt-2">Nome do Animal</h5>
-                                    <p className="text-justify pt-1">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque
-                                        ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at,
-                                        tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla.
-                                        Donec lacinia congue felis in faucibus.
-                                    </p>
-                                </Media.Body>
-                            </Media>
-                        </Col>
-                        <Col xs={12} md={6} lg={4}>
-                            <Media className="list-pet">
-                                <img
-                                width={64}
-                                height={64}
-                                className="mr-3"
-                                src="http://via.placeholder.com/64x64"
-                                alt="Generic placeholder"
-                                />
-                                <Media.Body>
-                                    <h5 className="text-center pt-2">Nome do Animal</h5>
-                                    <p className="text-justify pt-1">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque
-                                        ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at,
-                                        tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla.
-                                        Donec lacinia congue felis in faucibus.
-                                    </p>
-                                </Media.Body>
-                            </Media>
-                        </Col>
-                        <Col xs={12} md={6} lg={4}>
-                            <Media className="list-pet">
-                                <img
-                                width={64}
-                                height={64}
-                                className="mr-3"
-                                src="http://via.placeholder.com/64x64"
-                                alt="Generic placeholder"
-                                />
-                                <Media.Body>
-                                    <h5 className="text-center pt-2">Nome do Animal</h5>
-                                    <p className="text-justify pt-1">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque
-                                        ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at,
-                                        tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla.
-                                        Donec lacinia congue felis in faucibus.
-                                    </p>
-                                </Media.Body>
-                            </Media>
-                        </Col>
+                        <ListPets viewPet={this.checkPet}/>
                     </Row>
                 </Container>
             </React.Fragment>
@@ -145,4 +47,11 @@ class HomePage extends Component {
     }
 }
 
-export default HomePage
+const mapStateToProps = state => {
+    const { PetReducer } = state;
+    return {
+      PetReducer
+    }
+  };
+  
+export default connect(mapStateToProps)(HomePage);

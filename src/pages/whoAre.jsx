@@ -7,12 +7,17 @@ import {
 } from 'react-bootstrap'
 
 class WhoAre extends Component {
+    componentDidMount() {
+        let toDiv = document.getElementById('fixedBehavior');
+        toDiv.scrollIntoView({ behavior: "smooth" });
+    }
     render() {
         return (
             <React.Fragment>
-                <Image src="http://via.placeholder.com/2400x1080" fluid />
+                <Image src="https://image-sos.s3.amazonaws.com/10b91a26e9fd400b6c41fbc7586cd522-imagem-grande-4.jpg" fluid className="img-header" />
+
                 <Container>
-                    <Row>
+                    <Row data-aos="fade-up">
                         <Col xs={12}>
                             <h4 className="text-uppercase text-center pt-3 pb-4">Sobre a S.O.S. Pet</h4>
                         </Col>

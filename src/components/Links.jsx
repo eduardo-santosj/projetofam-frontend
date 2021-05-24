@@ -9,10 +9,10 @@ const Item = styled.div.attrs({
 
 class Links extends Component {
     handleclick = () => {
-        let nav = document.getElementById('responsive-navbar-nav')
         let button = document.getElementById('button-open-menu')
-        nav.classList.toggle('show')
+        let menu = document.getElementById('responsive-navbar-nav')
         button.classList.toggle('collapsed')
+        menu.classList.toggle('show')
     }
     render() {
         return (
@@ -27,11 +27,11 @@ class Links extends Component {
                         Sobre Adoção
                     </Link>
                 </Item>
-                <Item>
+                {/* <Item>
                     <Link to="/donation" className="nav-link" onClick={this.handleclick}>
                         Doação
                     </Link>
-                </Item>
+                </Item> */}
                 <Item>
                     <Link to="/who-are" className="nav-link" onClick={this.handleclick}>
                         Quem somos
@@ -43,11 +43,18 @@ class Links extends Component {
                     </Link>
                 </Item>
                 {this.props.LoginReducer.LogginReducerParams.client.isLogged &&
-                    <Item>
-                        <Link to="/my-space" className="nav-link" onClick={this.handleclick}>
-                            Meu Espaço
-                        </Link>
-                    </Item>
+                <>
+                        <Item>
+                            <Link to="/my-space" className="nav-link" onClick={this.handleclick}>
+                                Meu Espaço
+                            </Link>
+                        </Item>
+                        <Item>
+                            <Link to="/creat-pet" className="nav-link" onClick={this.handleclick}>
+                                Criar o Pet
+                            </Link>
+                        </Item>
+                </>
                 }
                 {!this.props.LoginReducer.LogginReducerParams.client.isLogged && 
                     <Item>

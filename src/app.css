@@ -81,6 +81,25 @@ button.navbar-toggler{
   display: flex;
   align-items: center;
   flex-direction: column;
+  box-shadow: 0px 0px 20px 2px rgba(164,186,191,1);
+  margin-bottom: 15px;
+}
+
+.list-pet .media-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.image-pet {
+  width: auto;
+  height: 64px
+}
+
+/* Adoção */
+.about-adoption .list-group .list-group-item {
+  border: none;
 }
 
 /* Forms */
@@ -112,6 +131,87 @@ button.navbar-toggler{
   top: 3px;
   left: 3px;
 }
+
+/* Create Pet */
+.content-drop {
+  width: 100%;
+  max-width: 400px;
+  margin: 30px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 20px;
+}
+.drop-container {
+  border: 1px dashed #A6524B;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: height .2s ease;
+  padding: 0 20px;
+}
+.drop-container.active {
+  border-color: #78e5d5;
+}
+.drop-container.reject {
+  border-color: #e57878;
+}
+.upload-message {
+  display: flex;
+  color: #1d1d1f;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 0;
+}
+.upload-message.error {
+  color: #e57878;
+}
+.upload-message.success {
+  color: #78e5d5;
+}
+.list-image {
+  margin-top: 20px;
+}
+.list-image li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.list-image li:nth-child(0) {
+  margin-top: 20px;
+}
+.file-info {
+  display: flex;
+  align-items: center;
+}
+.file-info .text-file {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+.file-info .text-file span {
+  font-size: 12px;
+  color: #999;
+}
+.file-info .text-file span button {
+  border: 0;
+  background: transparent;
+  color: #A6524B;
+  margin-left: 5px;
+  cursor: pointer;
+}
+.fa-link {
+  margin-right: 8px;
+  size: 24px;
+  color: #222;
+}
+.fa-check-circle {
+  size: 24px;
+  color: #78e5d5;
+}
+.fa-exclamation-triangle {
+  size: 24px;
+  color: #e57878;;
+}
+
 
 @media screen and (min-width: 1024px) {
   .show-md {

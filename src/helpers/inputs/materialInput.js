@@ -52,6 +52,21 @@ class MaterialInput extends Component {
 			)
 		}
 
+		if (type === "textarea") {
+			return (
+				<textarea
+					maxLength={maxlength}
+					className={inputClass + (error ? " is-invalid" : "")}
+					type="text"
+					name={name}
+					value={value ? value : ""}
+					onChange={onChange}
+					onFocus={this.onFocus}
+					onBlur={this.onBlur}
+					disabled={disabled} />
+			)
+		}
+
 		if (type === "dropdown") {
 			return (
 				<Dropdown

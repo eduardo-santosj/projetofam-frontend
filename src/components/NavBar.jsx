@@ -14,7 +14,8 @@ import Links from './Links'
 class NavBar extends Component {
   handleclick = () => {
     let button = document.getElementById('button-open-menu')
-    button.classList.toggle('collapsed')
+    let menu = document.getElementById('responsive-navbar-nav')
+    button.classList.toggle('collapsed')   
   }
   render() {
     return (

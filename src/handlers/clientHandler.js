@@ -7,7 +7,8 @@ export const clientHandler = {
   createClient,
   updateClient,
   updatePreClient,
-  getFull
+  getFull,
+  getFullId
 };
 
 function getClient(email) {
@@ -24,6 +25,15 @@ function getFull(email) {
     method: "GET",
   };
   return fetch(apiGatewayPrefix.concat(`/full/${email}`), requestOptions)
+    .then(apiHelpers.handleStatus)
+    .then(apiHelpers.handleResponse);
+};
+
+function getFullId(email) {
+  const requestOptions = {
+    method: "GET",
+  };
+  return fetch(apiGatewayPrefix.concat(`/fullid/${email}`), requestOptions)
     .then(apiHelpers.handleStatus)
     .then(apiHelpers.handleResponse);
 };

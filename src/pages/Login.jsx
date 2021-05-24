@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
-import { clientActions } from "../actions/clientAction"
-import { loginActions } from "../actions/loginAction"
-import { connect } from "react-redux";
+import { connect } from "react-redux"
 
 import {
-    Row,
-    Container,
-    Col,
-    Form,
-    Button
+  Row,
+  Container,
+  Col,
+  Form,
+  Button
 } from 'react-bootstrap'
 
 //Actions 
+import { clientActions } from "../actions/clientAction"
+import { loginActions } from "../actions/loginAction"
 import { GenderActions } from "../actions/helpers/genderActions"
 import { TypesHouseActions } from "../actions/helpers/typesHouseActions"
 
@@ -19,38 +19,41 @@ import { TypesHouseActions } from "../actions/helpers/typesHouseActions"
 import ShowAlert from '../helpers/alertHelper'
 import MaterialInput from '../helpers/inputs/materialInput'
 import { helpers } from "../helpers/validate/validateInput";
-import { wordIsAllowed } from "../helpers/configuration";
-import { history } from "../helpers/history";
+import { wordIsAllowed } from "../helpers/configuration"
+import { history } from "../helpers/history"
 
 
 class LoginPage extends Component {
   constructor(props) {
-      super(props)
+    super(props)
 
-      this.state = {
-          name: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          showAlertMessage: false,
-          formCreatedClient: false,
-          validEmail: false,
-          emailHasNotAllowedWord: false,
-          validName: false,
-          nameHasNotAllowedWord: false,
-          iqualPassword: false,
-          validPass: false,
-          emailLogin: '',
-          validEmailLogin: false,
-          passwordLogin: '',
-          formSendLogin: false
-      }
+    this.state = {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      showAlertMessage: false,
+      formCreatedClient: false,
+      validEmail: false,
+      emailHasNotAllowedWord: false,
+      validName: false,
+      nameHasNotAllowedWord: false,
+      iqualPassword: false,
+      validPass: false,
+      emailLogin: '',
+      validEmailLogin: false,
+      passwordLogin: '',
+      formSendLogin: false
+    }
   }
 
   componentDidMount() {
     const { dispatch } = this.props
     dispatch(GenderActions.getGender())
     dispatch(TypesHouseActions.getTypesHouse())
+
+    let toDiv = document.getElementById('fixedBehavior');
+    toDiv.scrollIntoView({ behavior: "smooth" });
   }
 
   handleChangeInput = (event, type) => {
@@ -178,7 +181,7 @@ class LoginPage extends Component {
         {showAlertMessage && 
         <ShowAlert ref="child" type={typeMessage} show={showAlertMessage} message={messageAlert}/>}
         <Container>
-          <Row className="justify-content-md-center">
+          <Row className="justify-content-md-center" data-aos="fade-up">
             <Col xs={12}>
               <h4 className="text-uppercase text-center pt-3 pb-4">Login</h4>
             </Col>
